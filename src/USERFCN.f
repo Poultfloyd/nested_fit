@@ -244,6 +244,8 @@ c################################### USERFCN DEFINITION ########################
       REAL*8 TWO_INTERP_VOIGT_POLY_X0
       REAL*8 DECAY, DECAY_SIMP
       REAL*8 x
+      REAL*8 MULTIPLE_VOIGT_POLY_X0
+      REAL*8 DCS_EIGHT_VOIGT_POLYBG_X0
       REAL*8 ELEVEN_GAUSS_WF_REL_BG, ELEVEN_GAUSS_WF_CORREL_BG
       REAL*8 DOUBLE_GAUSS_BG_Si
       REAL*8 EIGHT_GAUSS_WF_REL_BG, ELEVEN_GAUSS_WF_CORREL_BG2
@@ -6055,6 +6057,140 @@ c     Save the different components
       RETURN
       END
 
+c _______________________________________________________________________________________________
+
+
+      FUNCTION DCS_EIGHT_VOIGT_POLYBG_X0(X,npar,val) 
+c     8 Normalized Voigt distribution plus exponential background
+c     The value of 'amp' is the value of the surface below the curve
+      IMPLICIT NONE
+      INTEGER*4 npar
+      REAL*8 val(npar),val1(4),val2(4),val3(4),val4(4),val5(4),val6(4)
+      REAL*8 val7(4), val8(4), valp(8)
+      REAL*8 DCS_EIGHT_VOIGT_POLYBG_X0, VOIGT, POLY, x
+      REAL*8 pi
+      PARAMETER(pi=3.141592653589793d0)
+      REAL*8 x01, x02, x03, x04, x05, x06, x07, x08, x0
+      REAL*8 amp1, amp2, amp3, amp4, amp5, amp6, amp7, amp8
+      REAL*8 sigma
+      REAL*8 gamma1,gamma2,gamma3,gamma4,gamma5,gamma6,gamma7,gamma8
+      REAL*8 a, b, c, d, e, f, g
+      CHARACTER*1 lr
+      COMMON /func_exp/ lr
+      ! To plot the different components
+      LOGICAL plot
+      COMMON /func_plot/ plot
+
+      x01    = val(1)
+      x02    = val(2)
+      x03    = val(3)
+      x04    = val(4)
+      x05    = val(5)
+      x06    = val(6)
+      x07    = val(7)
+      x08    = val(8)
+      x0     = val(9)
+      amp1   = val(10)
+      amp2   = val(11)
+      amp3   = val(12)
+      amp4   = val(13)
+      amp5   = val(14)
+      amp6   = val(15)
+      amp7   = val(16)
+      amp8   = val(17)
+      sigma = val(18)
+      gamma1 = val(19)
+      gamma2 = val(20)
+      gamma3 = val(21)
+      gamma4 = val(22)
+      gamma5 = val(23)
+      gamma6 = val(24)
+      gamma7 = val(25)
+      gamma8 = val(26)
+      a      = val(27)
+      b      = val(28)
+      c      = val(29)
+      d      = val(30)
+      e      = val(31)
+      f      = val(32)
+      g      = val(33)
+
+
+c     first voigt peak
+      val1(1) = x01
+      val1(2) = amp1
+      val1(3) = sigma
+      val1(4) = gamma1
+
+c     second voigt peak
+      val2(1) = x02
+      val2(2) = amp2
+      val2(3) = sigma
+      val2(4) = gamma2
+
+c     third voigt peak
+      val3(1) = x03
+      val3(2) = amp3
+      val3(3) = sigma
+      val3(4) = gamma3
+
+c     fourth voigt peak
+      val4(1) = x04
+      val4(2) = amp4
+      val4(3) = sigma
+      val4(4) = gamma4
+
+c     fifth voigt peak
+      val5(1) = x05
+      val5(2) = amp5
+      val5(3) = sigma
+      val5(4) = gamma5
+
+c     sixth voigt peak
+      val6(1) = x06
+      val6(2) = amp6
+      val6(3) = sigma
+      val6(4) = gamma6
+
+c     seventh voigt peak
+      val7(1) = x07
+      val7(2) = amp7
+      val7(3) = sigma
+      val7(4) = gamma7
+
+c     sixth voigt peak
+      val8(1) = x08
+      val8(2) = amp8
+      val8(3) = sigma
+      val8(4) = gamma8
+
+c     Polynomial background
+      valp(1) = x0
+      valp(2) = a
+      valp(3) = b
+      valp(4) = c
+      valp(5) = d
+      valp(6) = e
+      valp(7) = 0.
+      valp(8) = 0.
+
+      DCS_EIGHT_VOIGT_POLYBG_X0 = VOIGT(x,4,val1) + VOIGT(x,4,val2) 
+     +     + VOIGT(x,4,val3) +  VOIGT(x,4,val4) + VOIGT(x,4,val5)
+     +     + VOIGT(x,4,val6) + VOIGT(x,4,val7)+ VOIGT(x,4,val8) 
+     +     + POLY(x-x0,8,valp)
+
+
+c     Save the different components      
+      IF(plot) THEN
+         WRITE(40,*) x, DCS_EIGHT_VOIGT_POLYBG_X0, 
+     +        VOIGT(x,4,val1), VOIGT(x,4,val2),
+     +        VOIGT(x,4,val3), VOIGT(x,4,val4),
+     +        VOIGT(x,4,val5), VOIGT(x,4,val6),
+     +        VOIGT(x,4,val7), VOIGT(x,4,val8), POLY(x-x0,8,valp)
+      ENDIF
+
+      RETURN
+      END
 c     _________________________________________________________________________________________________
       
       FUNCTION DECAY(X,npar,val)
@@ -6638,3 +6774,105 @@ c     Save the different components
       
 c     ##############################################################################################
       
+
+
+
+
+      FUNCTION MULTIPLE_VOIGT_POLY_X0(X,npar,val) 
+c     The value of 'amp' is the value of the surface below the curve
+      IMPLICIT NONE
+      INTEGER*4 npar
+      INTEGER*4 nvoigt
+      REAL*8 val(npar),val1(4), valtemp(4), valp(8)
+      INTEGER nparamv, nparamtemp
+      REAL*8 MULTIPLE_VOIGT_POLY_X0, VOIGT, POLY, x
+      REAL*8 pi
+      PARAMETER(pi=3.141592653589793d0)
+c      REAL*8 valv(npar+INT(val(1)))
+c      REAL*8 valv(40)
+      REAL*8 xv, xp
+      REAL*8 amp
+      REAL*8 sigma
+      REAL*8 gammav
+      REAL*8 a, b, c, d, e, f, g
+      INTEGER*4 i
+      CHARACTER*1 lr
+      COMMON /func_exp/ lr
+      ! To plot the different components
+      LOGICAL plot
+      COMMON /func_plot/ plot
+      nparamv=4*nvoigt
+      
+      nvoigt = val(1)
+      xv     = val(2)
+      xp     = val(3)
+      amp    = val(4)
+      sigma  = val(5)
+      gammav = val(6)
+      a      = val(7)
+      b      = val(8)
+      c      = val(9)
+      d      = val(10)
+      e      = val(11)
+      f      = val(12)
+      g      = val(13)
+
+
+c     first voigt peak
+      val1(1) = xv
+      val1(2) = amp
+      val1(3) = sigma
+      val1(4) = gammav
+
+c     Polynomial background
+      valp(1) = xp
+      valp(2) = a
+      valp(3) = b
+      valp(4) = c
+      valp(5) = d
+      valp(6) = e
+      valp(7) = 0.
+      valp(8) = 0.
+
+      MULTIPLE_VOIGT_POLY_X0 = VOIGT(x,4,val1) + POLY(x-xp,8,valp)
+
+
+c     Numerous voigt
+      DO i=1,nvoigt
+            nparamtemp=(i-1)*4+13
+            valtemp(1) = xv+val(nparamtemp+1)
+            valtemp(2) = amp*val(nparamtemp+2)
+            valtemp(3) = sigma
+            valtemp(4) = val(nparamtemp+3)
+c            valv((i-1)*4:4*i)= valtemp
+            MULTIPLE_VOIGT_POLY_X0 = MULTIPLE_VOIGT_POLY_X0
+     +      + VOIGT(x,4,valtemp)
+
+      END DO
+      IF(plot) THEN
+         WRITE(40,'(F15.10)',ADVANCE='NO') x
+         WRITE(40,'(F15.10)',ADVANCE='NO') MULTIPLE_VOIGT_POLY_X0
+         WRITE(40,'(F15.10)',ADVANCE='NO') VOIGT(x,4,val1)
+            DO i=1,nvoigt
+                  nparamtemp=(i-1)*4+13
+                  valtemp(1) = xv+val(nparamtemp+1)
+                  valtemp(2) = amp*val(nparamtemp+2)
+                  valtemp(3) = sigma
+                  valtemp(4) = val(nparamtemp+3)
+c                  valv((i-1)*4:4*i)= valtemp
+                  WRITE(40,'(F15.10)',ADVANCE='NO') VOIGT(x,4,valtemp)
+            END DO
+         WRITE(40,'(F15.10)') POLY(x-xp,8,valp)
+      ENDIF
+
+
+c      Save the different components      
+c       IF(plot) THEN
+c          WRITE(40,*) x, MULTIPLE_VOIGT_POLY_X0, 
+c      +        VOIGT(x,4,val1), 
+c      +        (VOIGT(x,4,valv((i-1)*4:4*i)),i=1,nvoigt),
+c      +         POLY(x-xp,8,valp)
+c       ENDIF
+
+      RETURN
+      END
