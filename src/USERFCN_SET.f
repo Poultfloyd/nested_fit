@@ -3690,7 +3690,6 @@ c Values for each spectrum
      +     + VOIGT(x,4,valv6_1) + VOIGT(x,4,valv7_1)
      +     + VOIGT(x,4,valv8_1) + a_1
      
-            WRITE(*,*) 'PREMIER SPECTRE'
 
       ELSEIF (j.EQ.2) THEN
             DCS_EIGHT_VOIGT_POLYBG_X0_SET = VOIGT(x,4,valv1_2) 
@@ -3698,7 +3697,7 @@ c Values for each spectrum
      +     + VOIGT(x,4,valv4_2) + VOIGT(x,4,valv5_2)
      +     + VOIGT(x,4,valv6_2) + VOIGT(x,4,valv7_2)
      +     + VOIGT(x,4,valv8_2) + a_2
-            WRITE(*,*) 'SECOND SPECTRE'
+     
 
       ELSEIF (j.EQ.3) THEN
             DCS_EIGHT_VOIGT_POLYBG_X0_SET = VOIGT(x,4,valv1_3)  
