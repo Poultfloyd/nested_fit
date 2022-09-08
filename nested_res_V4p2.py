@@ -1471,7 +1471,7 @@ class Analysis(object):
 
         #---------------------------------------------------------------------------------------------------------------------
 
-    def triangle_plot(self,path=currentpath):
+    def triangle_plot(self,path=currentpath,savefile=False):
         '''
         Triangle plot of all probability distributions using GetDist package
         '''
@@ -1482,8 +1482,9 @@ class Analysis(object):
 
         g = plots.get_subplot_plotter()
         g.triangle_plot(self.path+'/nf_output_points',filled=True)
+        if savefile==True:
+            plt.savefig(self.path+'/triangle_plot.png')
         plt.tight_layout()
-
         plt.show()
 
 
