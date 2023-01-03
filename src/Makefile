@@ -93,6 +93,18 @@ ifeq ($(AUTOTESTS),)
 else
    FFLAGS += -DAUTOTESTS_ON
 endif
+############## FLAG TO COSTUMIZE #############################
+#### Uncomment next line to run in parallel in LINUX
+FFLAGS  = -fopenmp
+#### Uncomment next line to optimize in MAC
+#FFLAGS   = -framework accelerate
+#### Uncomment next line to run in parallel and optimize in MAC
+#FFLAGS   = -framework accelerate -fopenmp
+###############################################################
+### ATTENTION!!!!
+### If you do not want to run in parallel,
+### modify the variable "parallel_on" in nested fit file
+###############################################################
 
 CFILES =
 
