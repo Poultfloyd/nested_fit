@@ -6777,6 +6777,7 @@ c     The value of 'amp' is the value of the surface below the curve
       INTEGER*4 npar
       INTEGER*4 nvoigt
       REAL*8 val(npar),val1(4), valtemp(4), valp(8)
+      REAL*8 valvoigts(npar)
       INTEGER nparamv, nparamtemp
       REAL*8 MULTIPLE_VOIGT_POLY_X0, VOIGT, POLY, x
       REAL*8 pi
@@ -6794,7 +6795,7 @@ c      REAL*8 valv(40)
       ! To plot the different components
       LOGICAL plot
       COMMON /func_plot/ plot
-      nparamv=4*nvoigt
+      
       
       nvoigt = val(1)
       xv     = val(2)
@@ -6810,6 +6811,7 @@ c      REAL*8 valv(40)
       f      = val(12)
       g      = val(13)
 
+      nparamv=4*nvoigt
 
 c     first voigt peak
       val1(1) = xv
@@ -6827,45 +6829,34 @@ c     Polynomial background
       valp(7) = 0.
       valp(8) = 0.
 
-      MULTIPLE_VOIGT_POLY_X0 = VOIGT(x,4,val1) + POLY(x-xp,8,valp)
+      valvoigts(1)=VOIGT(x,4,val1)
+      MULTIPLE_VOIGT_POLY_X0 = valvoigts(1) + POLY(x-xp,8,valp)
 
 
 c     Numerous voigt
-      DO i=1,nvoigt
-            nparamtemp=(i-1)*4+13
+      DO i=1,(nvoigt-1)
+            nparamtemp=(i-1)*3+13
             valtemp(1) = xv+val(nparamtemp+1)
             valtemp(2) = amp*val(nparamtemp+2)
             valtemp(3) = sigma
             valtemp(4) = val(nparamtemp+3)
 c            valv((i-1)*4:4*i)= valtemp
+            valvoigts(i+1)= VOIGT(x,4,valtemp)
             MULTIPLE_VOIGT_POLY_X0 = MULTIPLE_VOIGT_POLY_X0
-     +      + VOIGT(x,4,valtemp)
+     +      + valvoigts(i+1)
 
       END DO
+      
       IF(plot) THEN
          WRITE(40,'(F15.10)',ADVANCE='NO') x
          WRITE(40,'(F15.10)',ADVANCE='NO') MULTIPLE_VOIGT_POLY_X0
-         WRITE(40,'(F15.10)',ADVANCE='NO') VOIGT(x,4,val1)
             DO i=1,nvoigt
-                  nparamtemp=(i-1)*4+13
-                  valtemp(1) = xv+val(nparamtemp+1)
-                  valtemp(2) = amp*val(nparamtemp+2)
-                  valtemp(3) = sigma
-                  valtemp(4) = val(nparamtemp+3)
-c                  valv((i-1)*4:4*i)= valtemp
-                  WRITE(40,'(F15.10)',ADVANCE='NO') VOIGT(x,4,valtemp)
+                  WRITE(40,'(F15.10)',ADVANCE='NO') valvoigts(i)
             END DO
          WRITE(40,'(F15.10)') POLY(x-xp,8,valp)
       ENDIF
 
 
-c      Save the different components      
-c       IF(plot) THEN
-c          WRITE(40,*) x, MULTIPLE_VOIGT_POLY_X0, 
-c      +        VOIGT(x,4,val1), 
-c      +        (VOIGT(x,4,valv((i-1)*4:4*i)),i=1,nvoigt),
-c      +         POLY(x-xp,8,valp)
-c       ENDIF
 
       RETURN
       END
