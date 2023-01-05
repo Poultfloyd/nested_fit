@@ -260,13 +260,9 @@ c################################### USERFCN DEFINITION ########################
       REAL*8 SIX_VOIGT_PARA_SHIRBG_SIG_PLEIADES
       REAL*8 ROCKING_CURVE,TWO_INTERP_VOIGT_POLY,INTERP_POLY_X0
       REAL*8 THREE_INTERP_VOIGT_POLY, TWO_INTERP_VOIGT_POLY_X0
-      REAL*8 DECAY, DECAY_SIMP
       REAL*8 FOUR_INTERP_VOIGT_POLY_X0
       REAL*8 MULTIPLE_VOIGT_POLY_X0
-      REAL*8 INTERP_CONVO_POLY_X0, INTERP_TWO_VOIGT_POLY_X0
-      REAL*8 INTERP_THREE_VOIGT_POLY_X0
-      REAL*8 TWO_INTERP_TWO_VOIGT_POLY_X0
-      REAL*8 x, DCS_MULTIPLE_VOIGT_POLY_X0_N
+      REAL*8 x
       REAL*8 DCS_EIGHT_VOIGT_POLYBG_X0
       REAL*8 ELEVEN_GAUSS_WF_REL_BG, ELEVEN_GAUSS_WF_CORREL_BG
       REAL*8 DOUBLE_GAUSS_BG_Si
@@ -275,194 +271,183 @@ c################################### USERFCN DEFINITION ########################
 
 
 c     Choose your model (see below for definition)
-      SELECT CASE (funcid)
-      CASE (0)
-            USERFCN = GAUSS(x,npar,val)
-      CASE (1)
-            USERFCN = SUPERGAUSS(x,npar,val)
-      CASE (2)
-            USERFCN = ERFPEAK(x,npar,val)
-      CASE (3)
-            USERFCN = GAUSS_BG(x,npar,val)
-      CASE (4)
-            USERFCN = LORE(x,npar,val)
-      CASE (5)
-            USERFCN = LORENORM(x,npar,val)
-      CASE (6)
-            USERFCN = LORE_BG(x,npar,val)
-      CASE (7)
-            USERFCN = DOUBLE_LORE_WF_BG(x,npar,val)
-      CASE (8)
-            USERFCN = SIX_LORE_WF_BG(x,npar,val)
-      CASE (9)
-            USERFCN = SIX_LORE_WF_REL_BG(x,npar,val)
-      CASE (10)
-            USERFCN = CONS(x,npar,val)
-      CASE (11)
-            USERFCN = DOUBLE_GAUSS_BG(x,npar,val)
-      CASE (12)
-            USERFCN = DOUBLET_GAUSS_BG(x,npar,val)
-      CASE (13)
-            USERFCN = TRIPLE_GAUSS_BG(x,npar,val)
-      CASE (14)
-            USERFCN = QUAD_GAUSS_BG(x,npar,val)
-      CASE (15)
-            USERFCN = QUINT_GAUSS_BG(x,npar,val)
-      CASE (16)
-            USERFCN = SIX_GAUSS_BG(x,npar,val)
-      CASE (17)
-            USERFCN = SIX_GAUSS_EXPBG_WF(x,npar,val)
-      CASE (18)
-            USERFCN = SIX_GAUSS_DBEXPBG_WF(x,npar,val)
-      CASE (19)
-            USERFCN = EIGHT_GAUSS_POLYBG(x,npar,val)
-      CASE (20)
-            USERFCN = EIGHT_VOIGT_POLYBG_WF(x,npar,val)
-      CASE (21)
-            USERFCN = EXPFCN(x,npar,val)
-      CASE (22)
-            USERFCN = ERFFCN(x,npar,val)
-      CASE (23)
-            USERFCN = MB_BG(x,npar,val)
-      CASE (24)
-            USERFCN = GAUSS_EXP_BG(x,npar,val)
-      CASE (25)
-            USERFCN = GAUSS_GAUSS_EXP_BG(x,npar,val)
-      CASE (26)
-            USERFCN = GAUSS_EXP_BG_CONV(x,npar,val)
-      CASE (27)
-            USERFCN = VOIGT(x,npar,val)
-      CASE (28)
-            USERFCN = VOIGT_BG(x,npar,val)
-      CASE (29)
-            USERFCN = VOIGT_EXP(x,npar,val)
-      CASE (30)
-            USERFCN = VOIGT_ERF(x,npar,val)
-      CASE (31)
-            USERFCN = VOIGT_EXP_BG(x,npar,val)
-      CASE (32)
-            USERFCN = DOUBLE_VOIGT_BG(x,npar,val)
-      CASE (33)
-            USERFCN = DOUBLE_VOIGT_EXP_BG(x,npar,val)
-      CASE (34)
-            USERFCN = SIX_VOIGT_BG(x,npar,val)
-      CASE (35)
-            USERFCN = SIX_VOIGT_POLYBG(x,npar,val)
-      CASE (36)
-            USERFCN = SIX_VOIGT_XRD(x,npar,val)
-      CASE (37)
-            USERFCN = SIX_VOIGT_POLYBG_WF(x,npar,val)
-      CASE (38)
-            USERFCN = SIX_VOIGT_EXP_BG(x,npar,val)
-      CASE (39)
-            USERFCN = SIX_VOIGT_FREEGAMMA_BG(x,npar,val)
-      CASE (40)
-            USERFCN = SIX_GAUSS_ERF_FREESIG_POLY(x,npar,val)
-      CASE (41)
-            USERFCN = SIX_GAUSS_ERF_FREESIG_POLY2(x,npar,val)
-      CASE (42)
-            USERFCN = SIX_VOIGT_EXP_POLYBG(x,npar,val)
-      CASE (43)
-            USERFCN = SIX_VOIGT_EXPBG_WF(x,npar,val)
-      CASE (44)
-            USERFCN = TWO_INTERP_VOIGT_POLY(x,npar,val)
-      CASE (45)
-            USERFCN = TWO_INTERP_VOIGT_POLY_X0(x,npar,val)
-      CASE (46)
-            USERFCN = THREE_INTERP_VOIGT_POLY(x,npar,val)
-      CASE (47)
-            USERFCN = WEIBULL(x,npar,val)
-      CASE (48)
-            USERFCN = WEIBULL_BG(x,npar,val)
-      CASE (49)
-            USERFCN = WEIBULL_ERFBG(x,npar,val)
-      CASE (50)
-            USERFCN = LASER(x,npar,val)
-      CASE (51)
-            USERFCN = THRESHOLD(x,npar,val)
-      CASE (52)
-            USERFCN = GAUSS_ERF(x,npar,val)
-      CASE (53)
-            USERFCN = TWO_GAUSS_ERF_EXPBG(x,npar,val)
-      CASE (54)
-            USERFCN = TWO_DOUBL_GAUSS_ERF_POLY(x,npar,val)
-      CASE (55)
-            USERFCN = TWO_DOUBL_GAUSS_ERF_FREESIG_POLY(x,npar,val)
-      CASE (56)
-            USERFCN = TWO_DOUBL_VOIGT_ERF_POLY(x,npar,val)
-      CASE (57)
-            USERFCN = POLY(x,npar,val)
-      CASE (58)
-            USERFCN = POWER(x,npar,val)
-      CASE (59)
-            USERFCN = ND_M_PLEIADES(x,npar,val)
-      CASE (60)
-            USERFCN = BS_EM(x,npar,val)
-      CASE (61)
-            USERFCN = BS_EM2(x,npar,val)
-      CASE (62)
-            USERFCN = BS_EM_NM(x,npar,val)
-      CASE (63)
-            USERFCN = EXPCOS(x,npar,val)
-      CASE (64)
-            USERFCN = EXPSIN(x,npar,val)
-      CASE (65)
-            USERFCN = EXPSIMP(x,npar,val)
-      CASE (66)
-            USERFCN = TWO_EXPSIN(x,npar,val)
-      CASE (67)
-            USERFCN = FOUR_VOIGT_BG(x,npar,val)
-      CASE (68)
-            USERFCN = FOUR_GAUSS_ERF_TWO_GAUSS(x,npar,val)
-      CASE (69)
-            USERFCN = FOUR_GAUSS_ERF_TWO_GAUSS_STAN(x,npar,val)
-      CASE (70)
-            USERFCN = GAUSS_ERF_CST(x,npar,val)
-      CASE (71)
-            USERFCN = GAUSSERF_CST(x,npar,val)
-      CASE (72)
-            USERFCN = FOUR_VOIGT_BG_PLEIADES(x,npar,val)
-      CASE (73)
-            USERFCN = FOUR_GAUSS_BG_PLEIADES(x,npar,val)
-      CASE (74)
-            USERFCN = FOUR_PSEUDOVOIGT_BG_PLEIADES(x,npar,val)
-      CASE (75)
-            USERFCN = FOUR_GAUSS_PARAMETER_BG_PLEIADES(x,npar,val)
-      CASE (76)
-            USERFCN = FOUR_VOIGT_PARAMETER_BG_PLEIADES(x,npar,val)
-      CASE (77)
-            USERFCN = SIX_VOIGT_PARAMETER_BG_PLEIADES(x,npar,val)
-      CASE (78)
-            USERFCN = SIX_GAUSS_PARAMETER_BG_PLEIADES(x,npar,val)
-      CASE (79)
-            USERFCN = SIX_PSEUDOVOIGT_PARAMETER_BG_PLEIADES(x,npar,val)
-      CASE (80)
-            USERFCN = SIX_GAUSS_SHIRLEYBG(x,npar,val)
-      CASE (81)
-            USERFCN = SIX_VOIGT_SHIRLEYBG(x,npar,val)
-      CASE (82)
-            USERFCN = SIX_VOIGT_PARA_SHIRBG_SIG_PLEIADES(x,npar,val)
-      CASE (83)
-            USERFCN = SIX_VOIGT_PARAMETER_SHIRLEYBG_PLEIADES(x,npar,val)
-      CASE (84)
-            USERFCN = ROCKING_CURVE(x,npar,val)
-      CASE (85)
-            USERFCN = SIX_VOIGT_PARA_POLY_SIG_PLEIADES(x,npar,val)
-      CASE (86)
-            USERFCN = POWER_CONST(x, npar, val)
-      CASE (87)
-            USERFCN = ELEVEN_GAUSS_WF_REL_BG(x, npar, val)
-      CASE (88)
-            USERFCN = DOUBLE_GAUSS_BG_Si(x, npar, val)  
-      CASE (89)
-            USERFCN = EIGHT_GAUSS_WF_REL_BG(x, npar, val)  
-      CASE (90)
-            USERFCN = ELEVEN_GAUSS_WF_CORREL_BG(x, npar, val)   
-      CASE (91)
-            USERFCN = ELEVEN_GAUSS_WF_CORREL_BG2(x, npar, val) 
-      CASE (92)
-            USERFCN = POWER_CONST(x, npar, val)
-      CASE (93)
+      IF(funcname.EQ.'GAUSS') THEN
+         USERFCN = GAUSS(x,npar,val)
+      ELSE IF(funcname.EQ.'SUPERGAUSS') THEN
+         USERFCN = SUPERGAUSS(x,npar,val)
+      ELSE IF(funcname.EQ.'ERFPEAK') THEN
+         USERFCN = ERFPEAK(x,npar,val)
+      ELSE IF(funcname.EQ.'GAUSS_BG') THEN
+         USERFCN = GAUSS_BG(x,npar,val)
+      ELSE IF(funcname.EQ.'LORE') THEN
+         USERFCN = LORE(x,npar,val)
+      ELSE IF(funcname.EQ.'LORENORM') THEN
+         USERFCN = LORENORM(x,npar,val)
+      ELSE IF(funcname.EQ.'LORE_BG') THEN
+         USERFCN = LORE_BG(x,npar,val)
+      ELSE IF(funcname.EQ.'DOUBLE_LORE_WF_BG') THEN
+         USERFCN = DOUBLE_LORE_WF_BG(x,npar,val)
+      ELSE IF(funcname.EQ.'SIX_LORE_WF_BG') THEN
+         USERFCN = SIX_LORE_WF_BG(x,npar,val)
+      ELSE IF(funcname.EQ.'SIX_LORE_WF_REL_BG') THEN
+         USERFCN = SIX_LORE_WF_REL_BG(x,npar,val)
+      ELSE IF(funcname.EQ.'CONS') THEN
+         USERFCN = CONS(x,npar,val)
+      ELSE IF(funcname.EQ.'DOUBLE_GAUSS_BG') THEN
+         USERFCN = DOUBLE_GAUSS_BG(x,npar,val)
+      ELSE IF(funcname.EQ.'DOUBLET_GAUSS_BG') THEN
+         USERFCN = DOUBLET_GAUSS_BG(x,npar,val)
+      ELSE IF(funcname.EQ.'TRIPLE_GAUSS_BG') THEN
+         USERFCN = TRIPLE_GAUSS_BG(x,npar,val)
+      ELSE IF(funcname.EQ.'QUAD_GAUSS_BG') THEN
+         USERFCN = QUAD_GAUSS_BG(x,npar,val)
+      ELSE IF(funcname.EQ.'QUINT_GAUSS_BG') THEN
+         USERFCN = QUINT_GAUSS_BG(x,npar,val)
+      ELSE IF(funcname.EQ.'SIX_GAUSS_BG') THEN
+         USERFCN = SIX_GAUSS_BG(x,npar,val)
+      ELSE IF(funcname.EQ.'SIX_GAUSS_EXPBG_WF') THEN
+         USERFCN = SIX_GAUSS_EXPBG_WF(x,npar,val)
+      ELSE IF(funcname.EQ.'SIX_GAUSS_DBEXPBG_WF') THEN
+         USERFCN = SIX_GAUSS_DBEXPBG_WF(x,npar,val)
+      ELSE IF(funcname.EQ.'EIGHT_GAUSS_POLYBG_WF') THEN
+         USERFCN = EIGHT_GAUSS_POLYBG_WF(x,npar,val)
+      ELSE IF(funcname.EQ.'EIGHT_VOIGT_POLYBG_WF') THEN
+         USERFCN = EIGHT_VOIGT_POLYBG_WF(x,npar,val)
+      ELSE IF(funcname.EQ.'EXPFCN') THEN
+         USERFCN = EXPFCN(x,npar,val)
+      ELSE IF(funcname.EQ.'ERFFCN') THEN
+         USERFCN = ERFFCN(x,npar,val)
+      ELSE IF(funcname.EQ.'MB_BG') THEN
+         USERFCN = MB_BG(x,npar,val)
+      ELSE IF(funcname.EQ.'GAUSS_EXP_BG') THEN
+         USERFCN = GAUSS_EXP_BG(x,npar,val)
+      ELSE IF(funcname.EQ.'GAUSS_GAUSS_EXP_BG') THEN
+         USERFCN = GAUSS_GAUSS_EXP_BG(x,npar,val)
+      ELSE IF(funcname.EQ.'GAUSS_EXP_BG_CONV') THEN
+         USERFCN = GAUSS_EXP_BG_CONV(x,npar,val)
+      ELSE IF(funcname.EQ.'VOIGT') THEN
+         USERFCN = VOIGT(x,npar,val)
+      ELSE IF(funcname.EQ.'VOIGT_BG') THEN
+         USERFCN = VOIGT_BG(x,npar,val)
+      ELSE IF(funcname.EQ.'VOIGT_EXP') THEN
+         USERFCN = VOIGT_EXP(x,npar,val)
+      ELSE IF(funcname.EQ.'VOIGT_ERF') THEN
+         USERFCN = VOIGT_ERF(x,npar,val)
+      ELSE IF(funcname.EQ.'VOIGT_EXP_BG') THEN
+         USERFCN = VOIGT_EXP_BG(x,npar,val)
+      ELSE IF(funcname.EQ.'DOUBLE_VOIGT_BG') THEN
+         USERFCN = DOUBLE_VOIGT_BG(x,npar,val)
+      ELSE IF(funcname.EQ.'DOUBLE_VOIGT_EXP_BG') THEN
+         USERFCN = DOUBLE_VOIGT_EXP_BG(x,npar,val)
+      ELSE IF(funcname.EQ.'SIX_VOIGT_BG') THEN
+         USERFCN = SIX_VOIGT_BG(x,npar,val)
+      ELSE IF(funcname.EQ.'SIX_VOIGT_POLYBG') THEN
+         USERFCN = SIX_VOIGT_POLYBG(x,npar,val)
+      ELSE IF(funcname.EQ.'SIX_VOIGT_XRD') THEN
+         USERFCN = SIX_VOIGT_XRD(x,npar,val)
+      ELSE IF(funcname.EQ.'SIX_VOIGT_POLYBG_WF') THEN
+         USERFCN = SIX_VOIGT_POLYBG_WF(x,npar,val)
+      ELSE IF(funcname.EQ.'SIX_VOIGT_EXP_BG') THEN
+         USERFCN = SIX_VOIGT_EXP_BG(x,npar,val)
+      ELSE IF(funcname.EQ.'SIX_VOIGT_FREEGAMMA_BG') THEN
+         USERFCN = SIX_VOIGT_FREEGAMMA_BG(x,npar,val)
+      ELSE IF(funcname.EQ.'SIX_GAUSS_ERF_FREESIG_POLY') THEN
+         USERFCN = SIX_GAUSS_ERF_FREESIG_POLY(x,npar,val)
+      ELSE IF(funcname.EQ.'SIX_GAUSS_ERF_FREESIG_POLY2') THEN
+         USERFCN = SIX_GAUSS_ERF_FREESIG_POLY2(x,npar,val)
+      ELSE IF(funcname.EQ.'SIX_VOIGT_EXP_POLYBG') THEN
+         USERFCN = SIX_VOIGT_EXP_POLYBG(x,npar,val)
+      ELSE IF(funcname.EQ.'SIX_VOIGT_EXPBG_WF') THEN
+         USERFCN =SIX_VOIGT_EXPBG_WF(x,npar,val)
+      ELSE IF(funcname.EQ.'TWO_INTERP_VOIGT_POLY') THEN
+         USERFCN =TWO_INTERP_VOIGT_POLY(x,npar,val)
+      ELSE IF(funcname.EQ.'TWO_INTERP_VOIGT_POLY_X0') THEN
+         USERFCN =TWO_INTERP_VOIGT_POLY_X0(x,npar,val)
+      ELSE IF(funcname.EQ.'FOUR_INTERP_VOIGT_POLY_X0') THEN
+         USERFCN =FOUR_INTERP_VOIGT_POLY_X0(x,npar,val)
+      ELSE IF(funcname.EQ.'INTERP_POLY_X0') THEN
+            USERFCN =INTERP_POLY_X0(x,npar,val)
+      ELSE IF(funcname.EQ.'THREE_INTERP_VOIGT_POLY') THEN
+         USERFCN =THREE_INTERP_VOIGT_POLY(x,npar,val)
+      ELSE IF(funcname.EQ.'WEIBULL') THEN
+         USERFCN = WEIBULL(x,npar,val)
+      ELSE IF(funcname.EQ.'WEIBULL_BG') THEN
+         USERFCN = WEIBULL_BG(x,npar,val)
+      ELSE IF(funcname.EQ.'WEIBULL_ERFBG') THEN
+         USERFCN = WEIBULL_ERFBG(x,npar,val)
+      ELSE IF(funcname.EQ.'LASER') THEN
+         USERFCN = LASER(x,npar,val)
+      ELSE IF(funcname.EQ.'THRESHOLD') THEN
+         USERFCN = THRESHOLD(x,npar,val)
+      ELSE IF(funcname.EQ.'GAUSS_ERF') THEN
+         USERFCN = GAUSS_ERF(x,npar,val)
+      ELSE IF(funcname.EQ.'TWO_GAUSS_ERF_EXPBG') THEN
+         USERFCN = TWO_GAUSS_ERF_EXPBG(x,npar,val)
+      ELSE IF(funcname.EQ.'TWO_DOUBL_GAUSS_ERF_POLY') THEN
+         USERFCN = TWO_DOUBL_GAUSS_ERF_POLY(x,npar,val)
+      ELSE IF(funcname.EQ.'TWO_DOUBL_GAUSS_ERF_FREESIG_POLY') THEN
+         USERFCN = TWO_DOUBL_GAUSS_ERF_FREESIG_POLY(x,npar,val)
+      ELSE IF(funcname.EQ.'TWO_DOUBL_VOIGT_ERF_POLY') THEN
+         USERFCN = TWO_DOUBL_VOIGT_ERF_POLY(x,npar,val)
+      ELSE IF(funcname.EQ.'POLY') THEN
+         USERFCN = POLY(x,npar,val)
+      ELSE IF(funcname.EQ.'POWER') THEN
+         USERFCN = POWER(x,npar,val)
+      ELSE IF(funcname.EQ.'ND_M_PLEIADES') THEN
+         USERFCN = ND_M_PLEIADES(x,npar,val)
+      ELSE IF(funcname.EQ.'BS_EM') THEN
+         USERFCN = BS_EM(x,npar,val)
+      ELSE IF(funcname.EQ.'BS_EM2') THEN
+         USERFCN = BS_EM2(x,npar,val)
+      ELSE IF(funcname.EQ.'BS_EM_NM') THEN
+         USERFCN = BS_EM_NM(x,npar,val)
+      ELSE IF(funcname.EQ.'EXPCOS') THEN
+         USERFCN = EXPCOS(x,npar,val)
+      ELSE IF(funcname.EQ.'EXPSIN') THEN
+         USERFCN = EXPSIN(x,npar,val)
+      ELSE IF(funcname.EQ.'EXPSIMP') THEN
+         USERFCN = EXPSIMP(x,npar,val)
+      ELSE IF(funcname.EQ.'TWO_EXPSIN') THEN
+         USERFCN = TWO_EXPSIN(x,npar,val)
+      ELSE IF(funcname.EQ.'FOUR_VOIGT_BG') THEN
+         USERFCN = FOUR_VOIGT_BG(x,npar,val)
+      ELSE IF(funcname.EQ.'FOUR_GAUSS_ERF_TWO_GAUSS') THEN
+         USERFCN = FOUR_GAUSS_ERF_TWO_GAUSS(x,npar,val)
+      ELSE IF(funcname.EQ.'FOUR_GAUSS_ERF_TWO_GAUSS_STAN') THEN
+         USERFCN = FOUR_GAUSS_ERF_TWO_GAUSS_STAN(x,npar,val)
+      ELSE IF(funcname.EQ.'GAUSS_ERF_CST') THEN
+         USERFCN = GAUSS_ERF_CST(x,npar,val)
+      ELSE IF(funcname.EQ.'GAUSSERF_CST') THEN
+         USERFCN = GAUSSERF_CST(x,npar,val)
+      ELSE IF(funcname.EQ.'FOUR_VOIGT_BG_PLEIADES') THEN
+         USERFCN = FOUR_VOIGT_BG_PLEIADES(x,npar,val)
+      ELSE IF(funcname.EQ.'FOUR_GAUSS_BG_PLEIADES') THEN
+         USERFCN = FOUR_GAUSS_BG_PLEIADES(x,npar,val)
+      ELSE IF(funcname.EQ.'FOUR_PSEUDOVOIGT_BG_PLEIADES') THEN
+         USERFCN = FOUR_PSEUDOVOIGT_BG_PLEIADES(x,npar,val)
+      ELSE IF(funcname.EQ.'FOUR_GAUSS_PARAMETER_BG_PLEIADES') THEN
+         USERFCN = FOUR_GAUSS_PARAMETER_BG_PLEIADES(x,npar,val)
+      ELSE IF(funcname.EQ.'FOUR_VOIGT_PARAMETER_BG_PLEIADES') THEN
+         USERFCN = FOUR_VOIGT_PARAMETER_BG_PLEIADES(x,npar,val)
+      ELSE IF(funcname.EQ.'SIX_VOIGT_PARAMETER_BG_PLEIADES') THEN
+         USERFCN = SIX_VOIGT_PARAMETER_BG_PLEIADES(x,npar,val)
+      ELSE IF(funcname.EQ.'SIX_GAUSS_PARAMETER_BG_PLEIADES') THEN
+         USERFCN = SIX_GAUSS_PARAMETER_BG_PLEIADES(x,npar,val)
+      ELSE IF(funcname.EQ.'SIX_PSEUDOVOIGT_PARAMETER_BG_PLEIADES') THEN
+         USERFCN = SIX_PSEUDOVOIGT_PARAMETER_BG_PLEIADES(x,npar,val)
+      ELSE IF(funcname.EQ.'SIX_GAUSS_SHIRLEYBG') THEN
+         USERFCN = SIX_GAUSS_SHIRLEYBG(x,npar,val)
+      ELSE IF(funcname.EQ.'SIX_VOIGT_SHIRLEYBG') THEN
+         USERFCN = SIX_VOIGT_SHIRLEYBG(x,npar,val)
+      ELSE IF(funcname.EQ.'SIX_VOIGT_PARA_SHIRBG_SIG_PLEIADES') THEN
+         USERFCN = SIX_VOIGT_PARA_SHIRBG_SIG_PLEIADES(x,npar,val)
+      ELSE IF(funcname.EQ.'SIX_VOIGT_PARAMETER_SHIRLEYBG_PLEIADES') THEN
+         USERFCN = SIX_VOIGT_PARAMETER_SHIRLEYBG_PLEIADES(x,npar,val)
+      ELSE IF(funcname.EQ.'ROCKING_CURVE') THEN
+         USERFCN = ROCKING_CURVE(x,npar,val)
+      ELSE IF(funcname.EQ.'SIX_VOIGT_PARA_POLY_SIG_PLEIADES') THEN
+         USERFCN = SIX_VOIGT_PARA_POLY_SIG_PLEIADES(x,npar,val)
+      ELSE IF(funcname.EQ.'DCS_EIGHT_VOIGT_POLYBG_X0') THEN 
             USERFCN= DCS_EIGHT_VOIGT_POLYBG_X0(x,npar,val)
       CASE (94)
             USERFCN= MULTIPLE_VOIGT_POLY_X0(x,npar,val)
@@ -3463,263 +3448,6 @@ c     Save different components
       END
 
 
-      FUNCTION TWO_INTERP_TWO_VOIGT_POLY_X0(X,npar,val)
-c     Rocking curve with s and p polarization extracted from simulations
-      IMPLICIT NONE
-      INTEGER*4 npar
-      REAL*8 val(npar), valv1(4), valv2(4), valp(8)
-      REAL*8 TWO_INTERP_TWO_VOIGT_POLY_X0, VOIGT, POLY, x
-      REAL*8 y_1, y_2
-      REAL*8 amp1, amp2, amp3, amp4, x01, x02, x03, x04
-      REAL*8 sigma, gamma3, a, b, c, d, e, x0, gamma4
-c     Interpolation variables
-      INTEGER*4 k, nn_1, nn_2, ier_1,ier_2, nest
-      PARAMETER (nest=1000)
-      REAL*8 t_1(nest), c_1(nest), t_2(nest), c_2(nest)
-      COMMON /two_interp/ t_1, t_2, c_1, c_2, k, nn_1, nn_2
-      ! To plot the different components
-      LOGICAL plot
-      COMMON /func_plot/ plot
-
-      amp1  = val(1)
-      amp2  = val(2)
-      amp3  = val(3)
-      amp4  = val(4)
-      x01   = val(5)
-      x02   = val(6)
-      x03   = val(7)
-      x04   = val(8)
-      sigma = val(9)
-      gamma3 = val(10)
-      gamma4 = val(11)
-      x0    = val(12)
-      a     = val(13)
-      b     = val(14)
-      c     = val(15)
-      d     = val(16)
-      e     = val(17)
-
-
-c     Voigt peak 1
-      valv1(1) = x03
-      valv1(2) = amp3
-      valv1(3) = sigma
-      valv1(4) = gamma3
-
-c     Voigt peak 2
-      valv2(1) = x04
-      valv2(2) = amp4
-      valv2(3) = sigma
-      valv2(4) = gamma4
-
-c     Polynomial background
-      valp(1) = x0
-      valp(2) = a
-      valp(3) = b
-      valp(4) = c
-      valp(5) = d
-      valp(6) = e
-      valp(7) = 0.
-      valp(8) = 0.
-
-
-c     First peak
-      CALL SPLEV(t_1,nn_1,c_1,k,x-x01,y_1,1,1,ier_1)
-
-c     Second peak
-      CALL SPLEV(t_2,nn_2,c_2,k,x-x02,y_2,1,1,ier_2)
-
-      TWO_INTERP_TWO_VOIGT_POLY_X0 = amp1*y_1 + amp2*y_2 + 
-     +    VOIGT(x,4,valv1) +VOIGT(x,4,valv2) + POLY(x,8,valp)
-
-     
-
-
-c     Save different components
-      IF(plot) THEN
-         WRITE(40,*) x, TWO_INTERP_TWO_VOIGT_POLY_X0, amp1*y_1, 
-     +        amp2*y_2,
-     +      VOIGT(x,4,valv1),VOIGT(x,4,valv2), POLY(x,8,valp)
-
-      ENDIF
-
-      RETURN
-      END
-
-c ________________________________________________________________________________________________
-
-      FUNCTION INTERP_TWO_VOIGT_POLY_X0(X,npar,val)
-c     Rocking curve with s and p polarization extracted from simulations
-      IMPLICIT NONE
-      INTEGER*4 npar
-      REAL*8 val(npar), valv1(4), valv2(4), valp(8)
-      REAL*8 INTERP_TWO_VOIGT_POLY_X0, VOIGT, POLY, x, y_1
-      REAL*8 amp1, amp2, amp3, x01, x02, x03
-      REAL*8 sigma, gamma1, gamma2, a, b, c, d, e, x0
-      REAL*8 gamma3
-c     Interpolation variables
-      INTEGER*4 k, nn_1, ier_1, nest
-      PARAMETER (nest=1000)
-      REAL*8 t_1(nest), c_1(nest)
-      COMMON /interp/ t_1, c_1, k, nn_1
-      ! To plot the different components
-      LOGICAL plot
-      COMMON /func_plot/ plot
-
-      amp1  = val(1)
-      amp2  = val(2)
-      amp3  = val(3)
-      x01   = val(4)
-      x02   = val(5)
-      x03   = val(6)
-      sigma = val(7)
-      gamma2 = val(8)
-      gamma3 = val(9)
-      x0    = val(10)
-      a     = val(11)
-      b     = val(12)
-
-
-
-c     Voigt peak 1
-      valv1(1) = x02
-      valv1(2) = amp2
-      valv1(3) = sigma
-      valv1(4) = gamma2
-
-c     Voigt peak 2
-      valv2(1) = x03
-      valv2(2) = amp3
-      valv2(3) = sigma
-      valv2(4) = gamma3
-
-
-c     Polynomial background
-      valp(1) = x0
-      valp(2) = a
-      valp(3) = b
-      valp(4) = 0.
-      valp(5) = 0.
-      valp(6) = 0.
-      valp(7) = 0.
-      valp(8) = 0.
-
-
-c     First peak
-      CALL SPLEV(t_1,nn_1,c_1,k,x-x01,y_1,1,1,ier_1)
-
-
-
-      INTERP_TWO_VOIGT_POLY_X0 = amp1*y_1  + VOIGT(x,4,valv1) +
-     +     VOIGT(x,4,valv2) + POLY(x,8,valp)
-
-     
-
-
-c     Save different components
-      IF(plot) THEN
-         WRITE(40,*) x, INTERP_TWO_VOIGT_POLY_X0, amp1*y_1, 
-     +      VOIGT(x,4,valv1), VOIGT(x,4,valv2), POLY(x,8,valp)
-
-      ENDIF
-
-      RETURN
-      END
-
-
-c ________________________________________________________________________________________________
-
-      FUNCTION INTERP_THREE_VOIGT_POLY_X0(X,npar,val)
-c     Rocking curve with s and p polarization extracted from simulations
-      IMPLICIT NONE
-      INTEGER*4 npar
-      REAL*8 val(npar), valv1(4), valv2(4), valv3(4), valp(8)
-      REAL*8 INTERP_THREE_VOIGT_POLY_X0, VOIGT, POLY, x, y_1
-      REAL*8 amp1, amp2, amp3, x01, x02, x03, x04
-      REAL*8 sigma, gamma1, gamma2, a, b, c, d, e, x0
-      REAL*8 gamma3, gamma4, amp4
-c     Interpolation variables
-      INTEGER*4 k, nn_1, ier_1, nest
-      PARAMETER (nest=1000)
-      REAL*8 t_1(nest), c_1(nest)
-      COMMON /interp/ t_1, c_1, k, nn_1
-      ! To plot the different components
-      LOGICAL plot
-      COMMON /func_plot/ plot
-
-      amp1  = val(1)
-      amp2  = val(2)
-      amp3  = val(3)
-      amp4  = val(4)
-      x01   = val(5)
-      x02   = val(6)
-      x03   = val(7)
-      x04   = val(8)
-      sigma = val(9)
-      gamma2 = val(10)
-      gamma3 = val(11)
-      gamma4 = val(12)
-      x0    = val(13)
-      a     = val(14)
-      b     = val(15)
-
-
-
-c     Voigt peak 1
-      valv1(1) = x02
-      valv1(2) = amp2
-      valv1(3) = sigma
-      valv1(4) = gamma2
-
-c     Voigt peak 2
-      valv2(1) = x03
-      valv2(2) = amp3
-      valv2(3) = sigma
-      valv2(4) = gamma3
-
-c     Voigt peak 3
-      valv3(1) = x04
-      valv3(2) = amp4
-      valv3(3) = sigma
-      valv3(4) = gamma4
-
-c     Polynomial background
-      valp(1) = x0
-      valp(2) = a
-      valp(3) = b
-      valp(4) = 0.
-      valp(5) = 0.
-      valp(6) = 0.
-      valp(7) = 0.
-      valp(8) = 0.
-
-
-c     First peak
-      CALL SPLEV(t_1,nn_1,c_1,k,x-x01,y_1,1,1,ier_1)
-
-
-
-      INTERP_THREE_VOIGT_POLY_X0 = amp1*y_1  + VOIGT(x,4,valv1) +
-     +     VOIGT(x,4,valv2) + VOIGT(x,4,valv3)+ POLY(x,8,valp)
-
-     
-
-
-c     Save different components
-      IF(plot) THEN
-         WRITE(40,*) x, INTERP_THREE_VOIGT_POLY_X0, amp1*y_1, 
-     +      VOIGT(x,4,valv1), VOIGT(x,4,valv2), VOIGT(x,4,valv3),
-     +      POLY(x,8,valp)
-
-      ENDIF
-
-      RETURN
-      END
-
-
-
-
-
 c _______________________________________________________________________________________________
 
       FUNCTION FOUR_INTERP_VOIGT_POLY_X0(X,npar,val)
@@ -6625,589 +6353,9 @@ c     Save the different components
 
       RETURN
       END
-c     _________________________________________________________________________________________________
-      
-      FUNCTION DECAY(X,npar,val)
-c     Decay function for lifetime experiments
-      IMPLICIT NONE
-      INTEGER*4 npar
-      REAL*8 val(npar)
-      REAL*8 DECAY, x
-      REAL*8 pi
-      REAL*8 R0, lambda, lambda_cc, ratio_cc, gamma
-
-      R0        = val(1)
-      lambda    = val(2)
-      lambda_cc = val(3)
-      ratio_cc  = val(4)
-      gamma     = val(5)
-
-      DECAY = (R0+lambda/gamma/(lambda/gamma+lambda_cc*(1-ratio_cc)))*
-     +     DEXP((lambda/gamma+lambda_cc*(1-ratio_cc))*x)
-     +     -lambda/gamma/(lambda/gamma+lambda_cc*(1-ratio_cc))
-
-      RETURN
-      END
 
 
-c     _________________________________________________________________________________________________
-      
-      FUNCTION DECAY_SIMP(X,npar,val)
-c     Decay function for lifetime experiments
-      IMPLICIT NONE
-      INTEGER*4 npar
-      REAL*8 val(npar)
-      REAL*8 DECAY_SIMP, x
-      REAL*8 pi
-      REAL*8 R0, lambda, lambda_cc, ratio_cc, gamma
-
-      R0        = val(1)
-      lambda    = val(2)
-      lambda_cc = val(3)
-      ratio_cc  = val(4)
-      gamma     = val(5)
-
-      DECAY_SIMP = lambda/gamma*x*(1 + lambda_cc*(1-ratio_cc)/2)
-     +     + R0*DEXP(lambda_cc*(1-ratio_cc)*x)
-
-      RETURN
-      END
-     
-
-c
-c_______________________________________________________________________________________________
-      FUNCTION ELEVEN_GAUSS_WF_REL_BG(X,npar,val)
-c     2 Normalized Gaussian distribution plus background
-c     The value of 'amp' is the value of the surface below the curve
-      IMPLICIT NONE
-      INTEGER*4 npar
-      REAL*8 val(npar), vall1(3), vall2(3), vall3(3)
-      REAL*8 vall4(3), vall5(3), vall6(3), vall7(3), vall8(3)
-      REAL*8 vall9(3), vall10(3), vall11(3)
-      REAL*8 ELEVEN_GAUSS_WF_REL_BG, GAUSS, x
-      REAL*8 pi
-      PARAMETER(pi=3.141592653589793d0)
-      REAL*8 x01, amp1, sigma, bg
-      REAL*8 dx02, amp2
-      REAL*8 dx03, amp3
-      REAL*8 dx04, amp4
-      REAL*8 dx05, amp5
-      REAL*8 dx06, amp6
-      REAL*8 dx07, amp7
-      REAL*8 dx08, amp8
-      REAL*8 x09, amp9, dsigma
-      REAL*8 x10, amp10
-      REAL*8 x11, amp11
-      ! To plot the different components
-      LOGICAL plot
-      COMMON /func_plot/ plot
-
-      bg     = val(1)
-      x01    = val(2)
-      dx02    = val(3)
-      dx03    = val(4)
-      dx04    = val(5)
-      dx05    = val(6)
-      dx06    = val(7)
-      dx07    = val(8)
-      dx08    = val(9)
-      x09    = val(10)
-      x10    = val(11)
-      x11    = val(12)
-      amp1   = val(13)
-      amp2   = val(14)
-      amp3   = val(15)
-      amp4   = val(16)
-      amp5   = val(17)
-      amp6   = val(18)
-      amp7   = val(19)
-      amp8   = val(20)
-      amp9   = val(21)
-      amp10   = val(22)
-      amp11   = val(23)
-      sigma = val(24)
-      dsigma = val(25)
-
-c     first Gaussian peak
-      vall1(1) = x01
-      vall1(2) = amp1
-      vall1(3) = sigma
-
-c     second Gaussian peak
-      vall2(1) = x01 + dx02
-      vall2(2) = amp2
-      vall2(3) = sigma
-
-c     third Gaussian peak
-      vall3(1) = x01 + dx03
-      vall3(2) = amp3
-      vall3(3) = sigma
-
-c     fourth Gaussian peak
-      vall4(1) = x01 + dx04
-      vall4(2) = amp4
-      vall4(3) = sigma
-
-c     fifth Gaussian peak
-      vall5(1) = x01+dx05
-      vall5(2) = amp5
-      vall5(3) = sigma
-
-c     sixth Gaussian peak
-      vall6(1) = x01+dx06
-      vall6(2) = amp6
-      vall6(3) = sigma
-
-c     seventh Gaussian peak
-      vall7(1) = x01+dx07
-      vall7(2) = amp7
-      vall7(3) = sigma
-
-c     eighth Gaussian peak
-      vall8(1) = x01+dx08
-      vall8(2) = amp8
-      vall8(3) = sigma
-      
-c     ninth Gaussian peak
-      vall9(1) = x09
-      vall9(2) = amp9
-      vall9(3) = sigma*dsigma
-      
-c     tenth Gaussian peak
-      vall10(1) = x10
-      vall10(2) = amp10
-      vall10(3) = sigma*dsigma
-
-c     eleventh Gaussian peak
-      vall11(1) = x11
-      vall11(2) = amp11
-      vall11(3) = sigma*dsigma
-
-      ELEVEN_GAUSS_WF_REL_BG = GAUSS(x,3,vall1) + GAUSS(x,3,vall2)
-     +     + GAUSS(x,3,vall3) + GAUSS(x,3,vall4)  + GAUSS(x,3,vall5)
-     +     + GAUSS(x,3,vall6) + GAUSS(x,3,vall7) + GAUSS(x,3,vall8)
-     +     + GAUSS(x,3,vall9) + GAUSS(x,3,vall10) + GAUSS(x,3,vall11) 
-     +     + bg
-
-
-c     Save the different components
-      IF(plot) THEN
-         WRITE(40,*) x, ELEVEN_GAUSS_WF_REL_BG,
-     +        GAUSS(x,3,vall1), GAUSS(x,3,vall2), GAUSS(x,3,vall3),
-     +        GAUSS(x,3,vall4), GAUSS(x,3,vall5), GAUSS(x,3,vall6),
-     +        GAUSS(x,3,vall7), GAUSS(x,3,vall8), GAUSS(x,3,vall9),
-     +        GAUSS(x,3,vall10),GAUSS(x,3,vall11), bg
-      ENDIF
-
-      RETURN
-      END
-
-c ___________________________________________________________________________________
-      FUNCTION DOUBLE_GAUSS_BG_Si(X,npar,val)
-c     2 Normalized Gaussian distribution plus background
-c     The value of 'amp' is the value of the surface below the curve
-      IMPLICIT NONE
-      INTEGER*4 npar
-      REAL*8 val(npar), val1(3), val2(3)
-      REAL*8 DOUBLE_GAUSS_BG_Si, GAUSS, x
-      REAL*8 pi
-      PARAMETER(pi=3.141592653589793d0)
-      REAL*8 x01, x02, amp1, amp2, sigma1,sigma2, bg
-
-      bg    = val(1)
-      x01   = val(2)
-      x02   = val(3)
-      amp1  = val(4)
-      amp2  = val(5)
-      sigma1 = val(6)
-      sigma2 = val(7)
-      
-
-c     first gauss peak
-      val1(1) = x01
-      val1(2) = amp1
-      val1(3) = sigma1
-
-
-c     second gauss peak
-      val2(1) = x02
-      val2(2) = amp2
-      val2(3) = sigma2
-
-      DOUBLE_GAUSS_BG_Si = GAUSS(x,3,val1) + GAUSS(x,3,val2) + bg
-
-      RETURN
-      END
-
-c __________________________
-      FUNCTION EIGHT_GAUSS_WF_REL_BG(X,npar,val)
-c     2 Normalized Gaussian distribution plus background
-c     The value of 'amp' is the value of the surface below the curve
-      IMPLICIT NONE
-      INTEGER*4 npar
-      REAL*8 val(npar), vall1(3), vall2(3), vall3(3)
-      REAL*8 vall4(3), vall5(3), vall6(3), vall7(3), vall8(3)
-      REAL*8 vall9(3), vall10(3), vall11(3)
-      REAL*8 EIGHT_GAUSS_WF_REL_BG, GAUSS, x
-      REAL*8 pi
-      PARAMETER(pi=3.141592653589793d0)
-      REAL*8 x01, amp1, sigma, bg
-      REAL*8 dx02, amp2
-      REAL*8 dx03, amp3
-      REAL*8 dx04, amp4
-      REAL*8 dx05, amp5
-      REAL*8 dx06, amp6
-      REAL*8 dx07, amp7
-      REAL*8 dx08, amp8
-      ! To plot the different components
-      LOGICAL plot
-      COMMON /func_plot/ plot
-
-      bg     = val(1)
-      x01    = val(2)
-      dx02    = val(3)
-      dx03    = val(4)
-      dx04    = val(5)
-      dx05    = val(6)
-      dx06    = val(7)
-      dx07    = val(8)
-      dx08    = val(9)
-      amp1   = val(10)
-      amp2   = val(11)
-      amp3   = val(12)
-      amp4   = val(13)
-      amp5   = val(14)
-      amp6   = val(15)
-      amp7   = val(16)
-      amp8   = val(17)
-      sigma = val(18)
-
-c     first Gaussian peak
-      vall1(1) = x01
-      vall1(2) = amp1
-      vall1(3) = sigma
-
-c     second Gaussian peak
-      vall2(1) = x01 + dx02
-      vall2(2) = amp2
-      vall2(3) = sigma
-
-c     third Gaussian peak
-      vall3(1) = x01 + dx03
-      vall3(2) = amp3
-      vall3(3) = sigma
-
-c     fourth Gaussian peak
-      vall4(1) = x01 + dx04
-      vall4(2) = amp4
-      vall4(3) = sigma
-
-c     fifth Gaussian peak
-      vall5(1) = x01+dx05
-      vall5(2) = amp5
-      vall5(3) = sigma
-
-c     sixth Gaussian peak
-      vall6(1) = x01+dx06
-      vall6(2) = amp6
-      vall6(3) = sigma
-
-c     seventh Gaussian peak
-      vall7(1) = x01+dx07
-      vall7(2) = amp7
-      vall7(3) = sigma
-
-c     eighth Gaussian peak
-      vall8(1) = x01+dx08
-      vall8(2) = amp8
-      vall8(3) = sigma
-      
-
-      EIGHT_GAUSS_WF_REL_BG = GAUSS(x,3,vall1) + GAUSS(x,3,vall2)
-     +     + GAUSS(x,3,vall3) + GAUSS(x,3,vall4)  + GAUSS(x,3,vall5)
-     +     + GAUSS(x,3,vall6) + GAUSS(x,3,vall7) + GAUSS(x,3,vall8) + bg
-
-
-c     Save the different components
-      IF(plot) THEN
-         WRITE(40,*) x, EIGHT_GAUSS_WF_REL_BG,
-     +        GAUSS(x,3,vall1), GAUSS(x,3,vall2), GAUSS(x,3,vall3),
-     +        GAUSS(x,3,vall4), GAUSS(x,3,vall5), GAUSS(x,3,vall6),
-     +        GAUSS(x,3,vall7), GAUSS(x,3,vall8),bg
-      ENDIF
-
-      RETURN
-      END
-
-c_______________________________________________________________________________________________
-      FUNCTION ELEVEN_GAUSS_WF_CORREL_BG(X,npar,val)
-c     2 Normalized Gaussian distribution plus background
-c     The value of 'amp' is the value of the surface below the curve
-      IMPLICIT NONE
-      INTEGER*4 npar
-      REAL*8 val(npar), vall1(3), vall2(3), vall3(3)
-      REAL*8 vall4(3), vall5(3), vall6(3), vall7(3), vall8(3)
-      REAL*8 vall9(3), vall10(3), vall11(3)
-      REAL*8 ELEVEN_GAUSS_WF_CORREL_BG, GAUSS, x
-      REAL*8 pi
-      PARAMETER(pi=3.141592653589793d0)
-      REAL*8 x01, amp5, sigma, bg, da, db, dx
-      REAL*8 dx02
-      REAL*8 dx03
-      REAL*8 dx04
-      REAL*8 dx05
-      REAL*8 dx06
-      REAL*8 dx07
-      REAL*8 dx08
-      REAL*8 x09, amp9, dsigma
-      REAL*8 x10, amp10
-      REAL*8 x11, amp11
-      ! To plot the different components
-      LOGICAL plot
-      COMMON /func_plot/ plot
-
-      bg      = val(1)
-      x01     = val(2)
-      dx02    = val(3)
-      dx03    = val(4)
-      dx04    = val(5)
-      dx05    = val(6)
-      dx06    = val(7)
-      dx07    = val(8)
-      dx08    = val(9)
-      x09     = val(10)
-      x10     = val(11)
-      x11     = val(12)
-      amp5     = val(13)
-      da      = val(14)
-      db      = val(15)
-      amp9    = val(16)
-      amp10   = val(17)
-      amp11   = val(18)
-      sigma   = val(19)
-      dsigma  = val(20)
-
-c     All positions are considered with respect to the line 5
-
-c     first Gaussian peak
-      dx = -dx05
-      vall1(1) = x01
-      vall1(2) = amp5*EXP(1+ da*dx + db*dx**2)
-      vall1(3) = sigma
-
-c     second Gaussian peak
-      dx = dx02-dx05
-      vall2(1) = x01 + dx02 
-      vall2(2) = amp5*EXP(1+ da*dx + db*dx**2)
-      vall2(3) = sigma
-
-c     third Gaussian peak
-      dx = dx03-dx05
-      vall3(1) = x01 + dx03 
-      vall3(2) = amp5*EXP(1+ da*dx + db*dx**2)
-      vall3(3) = sigma
-
-c     fourth Gaussian peak
-      dx = dx04-dx05
-      vall4(1) = x01 + dx04 
-      vall4(2) =amp5*EXP(1+ da*dx + db*dx**2)
-      vall4(3) = sigma
-
-c     fifth Gaussian peak
-      vall5(1) = x01 + dx05
-      vall5(2) = amp5 
-      vall5(3) = sigma
-
-c     sixth Gaussian peak
-      dx = dx06-dx05
-      vall6(1) = x01 + dx06
-      vall6(2) = amp5*EXP(1+ da*dx + db*dx**2)
-      vall6(3) = sigma
-
-c     seventh Gaussian peak
-      dx = dx07-dx05
-      vall7(1) = x01 + dx07 
-      vall7(2) = amp5*EXP(1+ da*dx + db*dx**2)
-      vall7(3) = sigma
-
-c     eighth Gaussian peak
-      vall8(1) = x01 + dx08
-      vall8(2) = amp5*EXP(1+ da*dx + db*dx**2)
-      vall8(3) = sigma
-      
-c     ninth Gaussian peak
-      vall9(1) = x09
-      vall9(2) = amp9
-      vall9(3) = sigma*dsigma
-      
-c     tenth Gaussian peak
-      vall10(1) = x10
-      vall10(2) = amp10
-      vall10(3) = sigma*dsigma
-
-c     eleventh Gaussian peak
-      vall11(1) = x11
-      vall11(2) = amp11
-      vall11(3) = sigma*dsigma
-
-      ELEVEN_GAUSS_WF_CORREL_BG = GAUSS(x,3,vall1) + GAUSS(x,3,vall2)
-     +     + GAUSS(x,3,vall3) + GAUSS(x,3,vall4)  + GAUSS(x,3,vall5)
-     +     + GAUSS(x,3,vall6) + GAUSS(x,3,vall7) + GAUSS(x,3,vall8)
-     +     + GAUSS(x,3,vall9) + GAUSS(x,3,vall10) + GAUSS(x,3,vall11) 
-     +     + bg
-
-
-c     Save the different components
-      IF(plot) THEN
-         WRITE(40,*) x, ELEVEN_GAUSS_WF_CORREL_BG,
-     +        GAUSS(x,3,vall1), GAUSS(x,3,vall2), GAUSS(x,3,vall3),
-     +        GAUSS(x,3,vall4), GAUSS(x,3,vall5), GAUSS(x,3,vall6),
-     +        GAUSS(x,3,vall7), GAUSS(x,3,vall8), GAUSS(x,3,vall9),
-     +        GAUSS(x,3,vall10),GAUSS(x,3,vall11), bg
-      ENDIF
-
-      RETURN
-      END
-
-c     _______________________________________________________________________________________________
-      FUNCTION ELEVEN_GAUSS_WF_CORREL_BG2(X,npar,val)
-c     2 Normalized Gaussian distribution plus background
-c     The value of 'amp' is the value of the surface below the curve
-      IMPLICIT NONE
-      INTEGER*4 npar
-      REAL*8 val(npar), vall1(3), vall2(3), vall3(3)
-      REAL*8 vall4(3), vall5(3), vall6(3), vall7(3), vall8(3)
-      REAL*8 vall9(3), vall10(3), vall11(3)
-      REAL*8 ELEVEN_GAUSS_WF_CORREL_BG2, GAUSS, x
-      REAL*8 pi
-      PARAMETER(pi=3.141592653589793d0)
-      REAL*8 x01, amp5, sigma, bg, x0amp, sigamp, dx
-      REAL*8 dx02
-      REAL*8 dx03
-      REAL*8 dx04
-      REAL*8 dx05
-      REAL*8 dx06
-      REAL*8 dx07
-      REAL*8 dx08
-      REAL*8 x09, amp9, dsigma
-      REAL*8 x10, amp10
-      REAL*8 x11, amp11
-! To plot the different components
-      LOGICAL plot
-      COMMON /func_plot/ plot
-      
-      bg      = val(1)
-      x01     = val(2)
-      dx02    = val(3)
-      dx03    = val(4)
-      dx04    = val(5)
-      dx05    = val(6)
-      dx06    = val(7)
-      dx07    = val(8)
-      dx08    = val(9)
-      x09     = val(10)
-      x10     = val(11)
-      x11     = val(12)
-      amp5    = val(13)
-      x0amp   = val(14)
-      sigamp  = val(15)
-      amp9    = val(16)
-      amp10   = val(17)
-      amp11   = val(18)
-      sigma   = val(19)
-      dsigma  = val(20)
-      
-c     All positions are considered with respect to the line 5
-      
-c     first Gaussian peak
-      dx = -dx05
-      vall1(1) = x01
-      vall1(2) = amp5*EXP(-(dx-x0amp)**2/(2*sigamp**2
-     +     -(dx05-x0amp)**2/(2*sigamp**2) )) 
-      vall1(3) = sigma
-      
-c     second Gaussian peak
-      dx = dx02-dx05
-      vall2(1) = x01 + dx02 
-      vall2(2) = amp5*EXP(-(dx-x0amp)**2/(2*sigamp**2)
-     +     +(dx05-x0amp)**2/(2*sigamp**2))
-      vall2(3) = sigma
-      
-c     third Gaussian peak
-      dx = dx03-dx05
-      vall3(1) = x01 + dx03 
-      vall3(2) = amp5*EXP(-(dx-x0amp)**2/(2*sigamp**2)
-     +     +(dx05-x0amp)**2/(2*sigamp**2))
-      vall3(3) = sigma
-      
-c     fourth Gaussian peak
-      dx = dx04-dx05
-      vall4(1) = x01 + dx04 
-      vall4(2) =amp5*EXP(-(dx-x0amp)**2/(2*sigamp**2)
-     +     +(dx05-x0amp)**2/(2*sigamp**2))
-      vall4(3) = sigma
-      
-c     fifth Gaussian peak
-      vall5(1) = x01 + dx05
-      vall5(2) = amp5 
-      vall5(3) = sigma
-      
-c     sixth Gaussian peak
-      dx = dx06-dx05
-      vall6(1) = x01 + dx06
-      vall6(2) = amp5*EXP(-(dx-x0amp)**2/(2*sigamp**2)
-     +     +(dx05-x0amp)**2/(2*sigamp**2))
-      vall6(3) = sigma
-      
-c     seventh Gaussian peak
-      dx = dx07-dx05
-      vall7(1) = x01 + dx07 
-      vall7(2) = amp5*EXP(-(dx-x0amp)**2/(2*sigamp**2)
-     +     +(dx05-x0amp)**2/(2*sigamp**2))
-      vall7(3) = sigma
-      
-c     eighth Gaussian peak
-      vall8(1) = x01 + dx08
-      vall8(2) = amp5*EXP(-(dx-x0amp)**2/(2*sigamp**2)
-     +     +(dx05-x0amp)**2/(2*sigamp**2))
-      vall8(3) = sigma
-      
-c     ninth Gaussian peak
-      vall9(1) = x09
-      vall9(2) = amp9
-      vall9(3) = sigma*dsigma
-      
-c     tenth Gaussian peak
-      vall10(1) = x10
-      vall10(2) = amp10
-      vall10(3) = sigma*dsigma
-      
-c     eleventh Gaussian peak
-      vall11(1) = x11
-      vall11(2) = amp11
-      vall11(3) = sigma*dsigma
-      
-      ELEVEN_GAUSS_WF_CORREL_BG2 = GAUSS(x,3,vall1) + GAUSS(x,3,vall2)
-     +     + GAUSS(x,3,vall3) + GAUSS(x,3,vall4)  + GAUSS(x,3,vall5)
-     +     + GAUSS(x,3,vall6) + GAUSS(x,3,vall7) + GAUSS(x,3,vall8)
-     +     + GAUSS(x,3,vall9) + GAUSS(x,3,vall10) + GAUSS(x,3,vall11) 
-     +     + bg
-      
-      
-c     Save the different components
-      IF(plot) THEN
-         WRITE(40,*) x, ELEVEN_GAUSS_WF_CORREL_BG2,
-     +        GAUSS(x,3,vall1), GAUSS(x,3,vall2), GAUSS(x,3,vall3),
-     +        GAUSS(x,3,vall4), GAUSS(x,3,vall5), GAUSS(x,3,vall6),
-     +        GAUSS(x,3,vall7), GAUSS(x,3,vall8), GAUSS(x,3,vall9),
-     +        GAUSS(x,3,vall10),GAUSS(x,3,vall11), bg
-      ENDIF
-      
-      RETURN
-      END
-      
-c     ##############################################################################################
-      
+c ##############################################################################################
 
 
 
@@ -7289,189 +6437,12 @@ c            valv((i-1)*4:4*i)= valtemp
       END DO
       
       IF(plot) THEN
-            WRITE(40,'(ES14.5)',ADVANCE='NO') x
-            WRITE(40,'(ES14.5 )',ADVANCE='NO') MULTIPLE_VOIGT_POLY_X0
+            WRITE(40,'(F15.10)',ADVANCE='NO') x
+            WRITE(40,'(F15.10)',ADVANCE='NO') MULTIPLE_VOIGT_POLY_X0
             DO i=1,nvoigt
                   WRITE(40,'(ES14.5)' ,ADVANCE='NO') valvoigts(i)
             END DO
-            WRITE(40,'(ES14.5)' ) POLY(x-xp,8,valp)
-      ENDIF
-
-
-
-      RETURN
-      END
-
-
-      FUNCTION INTERP_CONVO_POLY_X0(X,npar,val)
-c     Rocking curve with s and p polarization extracted from simulations
-      IMPLICIT NONE
-      INTEGER*4 npar
-      REAL*8 val(npar), vall(3), valp(8)
-      REAL*8 INTERP_CONVO_POLY_X0, LORE, POLY, x, y_1
-      REAL*8 amp1, amp2, amp3, x01, x02, x03
-      REAL*8 sigma, gamma, a, b, c, d, e, xp
-c     Interpolation variables
-      INTEGER*4 k, nn_1, nn_2, ier_1, nest, n, i
-      PARAMETER (nest=1000, n=400)
-      REAL*8 t_1(nest), c_1(nest),x_int(n), w(n), tot(n), conv
-      COMMON /interp_convolution/ t_1, c_1, k, nn_1, x_int, w
-      ! To plot the different components
-      LOGICAL plot
-      COMMON /func_plot/ plot
-
-c      WRITE(*,*) w
-      amp1  = val(1)
-      x01   = val(2)
-      gamma = val(3)
-      xp    = val(4)
-      a     = val(5)
-      b     = val(6)
-      c     = val(7)
-
-
-
-
-c     Lorentzian peak
-      vall(1) = x01
-      vall(2) = amp1
-      vall(3) = gamma
-
-
-c     Polynomial background
-      valp(1) = xp
-      valp(2) = a
-      valp(3) = b
-      valp(4) = c
-      valp(5) = 0
-      valp(6) = 0
-      valp(7) = 0.
-      valp(8) = 0.
-
-
-      DO i=1,n
-            tot(i)=w(i)*LORE(x-x_int(i),3,vall)
-      enddo 
-
-      conv=sum(tot)
-      INTERP_CONVO_POLY_X0 = conv +POLY(x,8,valp)
-
-
-c     Save different components
-      IF(plot) THEN
-         WRITE(40,*) x, INTERP_CONVO_POLY_X0, conv, 
-     +    POLY(x,8,valp)
-      ENDIF
-
-      RETURN
-      END
-
-
-
-      FUNCTION DCS_MULTIPLE_VOIGT_POLY_X0_N(X,npar,val) 
-c     The value of 'amp' is the value of the surface below the curve
-      IMPLICIT NONE
-      INTEGER*4 npar
-      INTEGER*4 nvoigt
-      REAL*8 val(npar),val1(4), valtemp(4), valp(8)
-      REAL*8 valvoigts(npar)
-      INTEGER nparamv, nparamtemp
-      REAL*8 DCS_MULTIPLE_VOIGT_POLY_X0_N, VOIGT, POLY, x
-      REAL*8 pi
-      PARAMETER(pi=3.141592653589793d0)
-c      REAL*8 valv(npar+INT(val(1)))
-c      REAL*8 valv(40)
-      REAL*8 xv, xp
-      REAL*8 amp
-      REAL*8 sigma, valv1(4),valv2(4)
-      REAL*8 gammav, sigma1, sigma2
-      REAL*8 a, b, c, d, e, f, g
-      INTEGER*4 i
-      CHARACTER*1 lr
-      COMMON /func_exp/ lr
-      ! To plot the different components
-      LOGICAL plot
-      COMMON /func_plot/ plot
-      
-      
-      nvoigt = INT(val(1))
-      xv     = val(2)
-      xp     = val(3)
-      amp    = val(4)
-      sigma  = val(5)
-      gammav = val(6)
-      a      = val(7)
-      b      = val(8)
-      c      = val(9)
-      d      = val(10)
-      e      = val(11)
-      f      = val(12)
-      g      = val(13)
-
-      nparamv=4*nvoigt
-
-c     first voigt peak
-      val1(1) = xv
-      val1(2) = amp
-      val1(3) = sigma
-      val1(4) = gammav
-
-c     Polynomial background
-      valp(1) = xp
-      valp(2) = a
-      valp(3) = b
-      valp(4) = c
-      valp(5) = d
-      valp(6) = e
-      valp(7) = 0.
-      valp(8) = 0.
-
-
-      valvoigts(1)=VOIGT(x,4,val1)
-      DCS_MULTIPLE_VOIGT_POLY_X0_N = valvoigts(1) + POLY(x-xp,8,valp)
-
-
-c     Numerous voigt
-      DO i=1,(nvoigt-1)
-            nparamtemp=(i-1)*3+13
-            valtemp(1) = xv+val(nparamtemp+1)
-            valtemp(2) = amp*val(nparamtemp+2)
-            valtemp(3) = sigma
-            valtemp(4) = val(nparamtemp+3)
-c            valv((i-1)*4:4*i)= valtemp
-            valvoigts(i+1)= VOIGT(x,4,valtemp)
-            DCS_MULTIPLE_VOIGT_POLY_X0_N = DCS_MULTIPLE_VOIGT_POLY_X0_N
-     +      + valvoigts(i+1)
-
-      END DO
-
-c     First neighbour peak
-
-
-      valv1(1)=val(13+3*(nvoigt-1)+1)
-      valv1(2)=val(13+3*(nvoigt-1)+2)
-      valv1(3)=val(13+3*(nvoigt-1)+3)
-      valv1(4)=val(13+3*(nvoigt-1)+4)
-      
-c     second neighbour peak
-
-      valv2(1)=val(13+3*(nvoigt-1)+5)
-      valv2(2)=val(13+3*(nvoigt-1)+6)
-      valv2(3)=val(13+3*(nvoigt-1)+7)
-      valv2(4)=val(13+3*(nvoigt-1)+8)
-      
-      DCS_MULTIPLE_VOIGT_POLY_X0_N = DCS_MULTIPLE_VOIGT_POLY_X0_N + 
-     + VOIGT(x,4,valv1) + VOIGT(x,4,valv2)
-
-      IF(plot) THEN
-            WRITE(40,'(ES14.5)' ,ADVANCE='NO') x
-      WRITE(40,'(ES14.5)' ,ADVANCE='NO') DCS_MULTIPLE_VOIGT_POLY_X0_N
-            DO i=1,nvoigt
-                  WRITE(40,'(ES14.5)' ,ADVANCE='NO') valvoigts(i)
-            END DO
-            WRITE(40,'(ES14.5)' ,ADVANCE='NO') VOIGT(x,4,valv1)
-            WRITE(40,'(ES14.5)' ,ADVANCE='NO') VOIGT(x,4,valv2)
-            WRITE(40,'(ES14.5)' ) POLY(x-xp,8,valp)
+            WRITE(40,'(F15.10)') POLY(x-xp,8,valp)
       ENDIF
 
 
