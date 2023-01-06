@@ -6139,7 +6139,7 @@ c      REAL*8 valv(40)
       COMMON /func_plot/ plot
       
       
-      nvoigt = val(1)
+      nvoigt = INT(val(1))
       xv     = val(2)
       xp     = val(3)
       amp    = val(4)

@@ -2,6 +2,7 @@ c     Automatic Time-stamp: <Last changed by martino on Tuesday 02 April 2019 at
 c################################### USERFCN DEFINITION #####################################
 
       FUNCTION USERFCN_SET(x,npar,val,funcname,j)
+      USE MOD_USERFCN_SET_F90
       IMPLICIT NONE
       INTEGER*4 npar, j
       REAL*8 val(npar)
@@ -61,6 +62,8 @@ c     Choose your model (see below for definition)
          USERFCN_SET = ROCKING_CURVE_SET(x,npar,val,j)
       ELSE IF(funcname.EQ.'DCS_EIGHT_VOIGT_POLYBG_X0_SET') THEN
          USERFCN_SET = DCS_EIGHT_VOIGT_POLYBG_X0_SET(x,npar,val,j)
+      ELSE IF(funcname.EQ.'MULTIPLE_VOIGT_SET') THEN
+            USERFCN_SET = MULTIPLE_VOIGT_SET(x,npar,val,j)
       ELSE
          WRITE(*,*) 'Selected function:', funcname
          WRITE(*,*) 'Error in the function name def. in USERFCN_SET'
