@@ -174,6 +174,7 @@ OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin -check uninit -check bounds 
 FC  = ifort
 CC  = gcc
 FC90= $(FC)
+OBJFILES = $(CFILES:.c=.o)  $(F90FILES:.f90=.o) $(FFILES:.f=.o)
 SRCFILES =  $(FFILES)
 OBJFILES = $(CFILES:.c=.o) $(FFILES:.f=.o) $(F90FILES_LIKE:.f90=.o) 
 OBJFILES_FUNC = $(CFILES:.c=.o) $(FFILES:.f=.o) $(F90FILES_FUNC:.f90=.o)
