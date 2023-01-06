@@ -147,7 +147,7 @@ FFILES  = USERFCN.f USERFCN_SET.f init_interpolation.f \
 	\
 	rinteg.f CALGO.ACM/WOFZ.f \
 
-F90FILES_LIKE = Mod_parameters.f90 Mod_timestamp.f90 Mod_likelihood.f90 \
+F90FILES = Mod_parameters.f90 Mod_likelihood.f90 Mod_timestamp.f90 Mod_userfcn_set_f90.f90 \
 	Mod_cluster_analysis.f90 Mod_search_new_point.f90 \
 	Mod_options.f90 Mod_mpi.f90 Mod_math.f90 \
 	Mod_metadata.f90 \
@@ -204,12 +204,14 @@ CC  = gcc
 FC90= $(FC)
 OBJFILES = $(CFILES:.c=.o)  $(F90FILES:.f90=.o) $(FFILES:.f=.o)
 SRCFILES =  $(FFILES)
-OBJFILES = $(CFILES:.c=.o) $(FFILES:.f=.o) $(F90FILES_LIKE:.f90=.o) 
-OBJFILES_FUNC = $(CFILES:.c=.o) $(FFILES:.f=.o) $(F90FILES_FUNC:.f90=.o)
-$(info Flags --> $(FFLAGS))
-$(info Libraries --> $(LIBG))
 
-#
+
+.c.o:
+	$(CC) -c $(CFLAGS) $<
+
+
+.f90.o:
+	$(FC90) -c $(FFLAGS) ${OPT} $<
 # actual build
 all: $(NAME) $(NAME_FUNC) 
 
@@ -224,29 +226,7 @@ $(NAME): $(OBJFILES) $(FFILES)   $(LIBG)
 	chmod u+x $@
 	rm -f $(HOME)/bin/$@
 	cp -p $@ $(HOME)/bin
-	mv $@ ../bin/.
-
-$(NAME_FUNC):  $(OBJFILES_FUNC) $(FFILES)   $(LIBG)
-	$(FC) -o $@  $(FFLAGS) $(OBJFILES_FUNC) $(LIBG) $(LDFLAGS)
-	chmod 640 $@
-	chmod g+x $@
-	chmod u+x $@
-	rm -f $(HOME)/bin/$@
-	cp -p $@ $(HOME)/bin
-	mv $@ ../bin/.
-
-
-%.o: $(dir $(FFILES))/%.f
-	$(FC) -c $(FFLAGS) ${OPT} $^
-
-.f90.o:
-	$(FC90) -c $(FFLAGS) ${OPT} $<
-
-
-#f90getopt.o: cli/f90getopt.f90
-#	$(FC) -c $(FFLAGS) ${OPT} $<
-
-argparse.o: cli/argparse.f90
+.f.o:
 	$(FC) -c $(FFLAGS) ${OPT} $<
 
 clean:
