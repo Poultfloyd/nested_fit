@@ -147,7 +147,7 @@ FFILES  = USERFCN.f USERFCN_SET.f init_interpolation.f \
 	\
 	rinteg.f CALGO.ACM/WOFZ.f \
 
-F90FILES = Mod_parameters.f90 Mod_likelihood.f90 Mod_timestamp.f90 Mod_userfcn_set_f90.f90 \
+F90FILES = Mod_parameters.f90 Mod_likelihood.f90 Mod_timestamp.f90 userfcn_set_f90.f90 \
 	Mod_cluster_analysis.f90 Mod_search_new_point.f90 \
 	Mod_options.f90 Mod_mpi.f90 Mod_math.f90 \
 	Mod_metadata.f90 \
@@ -206,6 +206,7 @@ OBJFILES = $(CFILES:.c=.o)  $(F90FILES:.f90=.o) $(FFILES:.f=.o)
 SRCFILES =  $(FFILES)
 
 
+
 .c.o:
 	$(CC) -c $(CFLAGS) $<
 
@@ -228,6 +229,7 @@ $(NAME): $(OBJFILES) $(FFILES)   $(LIBG)
 	cp -p $@ $(HOME)/bin
 .f.o:
 	$(FC) -c $(FFLAGS) ${OPT} $<
+USERFCN_SET.o: userfcn_set_f90.o
 
 clean:
 	rm -f *.o
