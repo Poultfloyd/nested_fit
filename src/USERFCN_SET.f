@@ -74,6 +74,7 @@ c     Choose your model (see below for definition)
       REAL*8 ROCKING_CURVE_SET
       INTEGER*4 funcid
       REAL*8 DCS_EIGHT_VOIGT_POLYBG_X0_SET
+      REAL*8 MULTIPLE_VOIGT_SET
       CHARACTER*64 funcname
 
  
