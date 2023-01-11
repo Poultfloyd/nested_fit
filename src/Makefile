@@ -43,13 +43,16 @@ F90FILES = Mod_parameters.f90 Mod_likelihood.f90 Mod_timestamp.f90 \
 
 
 # for gfortran
-OPT = -O2 -static
+#OPT = -O2 -static
 # For Intel fortran
 #OPT = -O2 -no-wrap-margin
 #OPT = -O2 -heap-arrays -no-wrap-margin
 #OPT = -O2 -no-wrap-margin
 #OPT = -fast -heap-arrays -no-wrap-margin
 #OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin
+#OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin -check uninit -check bounds -traceback
+OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin -check uninit -check bounds -traceback -xCORE-AVX2 #Setup for SAM/SCUD
+
 
 # other debug options for gfortran
 #OPT = -g  -C -static
@@ -70,8 +73,8 @@ OPT = -O2 -static
 #LDFLAGS = -framework accelerate -fopenmp
 
 # Rules...
-FC  = gfortran
-#FC  = ifort
+#FC  = gfortran
+FC  = ifort
 CC  = gcc
 FC90= $(FC)
 SRCFILES =  $(FFILES)
