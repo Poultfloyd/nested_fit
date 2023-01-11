@@ -49,6 +49,7 @@ c################################### USERFCN DEFINITION ########################
       REAL*8 THREE_INTERP_VOIGT_POLY, TWO_INTERP_VOIGT_POLY_X0
       REAL*8 FOUR_INTERP_VOIGT_POLY_X0
       REAL*8 MULTIPLE_VOIGT_POLY_X0
+
       REAL*8 x
       REAL*8 DCS_EIGHT_VOIGT_POLYBG_X0
       CHARACTER*64 funcname

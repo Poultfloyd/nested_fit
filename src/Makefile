@@ -35,7 +35,7 @@ FFILES  =  USERFCN.f USERFCN_SET.f init_interpolation.f \
 
 # Change Mod_likelihood.f90 in Mod_likelihood_tests.f90 below for tests
 
-F90FILES = Mod_parameters.f90 Mod_likelihood.f90 Mod_timestamp.f90 Mod_userfcn_set_f90.f90 \
+F90FILES = Mod_parameters.f90 Mod_likelihood.f90 Mod_timestamp.f90 userfcn_set_f90.f90 \
 	Mod_cluster_analysis.f90 Mod_search_new_point.f90 \
 	nested_fit.f90 nested_sampling.f90 \
 	USERFCN_2D.f90 \
@@ -81,6 +81,7 @@ OBJFILES = $(CFILES:.c=.o)  $(F90FILES:.f90=.o) $(FFILES:.f=.o)
 SRCFILES =  $(FFILES)
 
 
+
 .c.o:
 	$(CC) -c $(CFLAGS) $<
 
@@ -97,6 +98,7 @@ $(NAME): $(OBJFILES) $(FFILES)   $(LIBG)
 	cp -p $@ $(HOME)/bin
 .f.o:
 	$(FC) -c $(FFLAGS) ${OPT} $<
+USERFCN_SET.o: userfcn_set_f90.o
 
 clean:
 	rm -f *.o

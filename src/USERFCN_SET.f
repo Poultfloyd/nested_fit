@@ -2,7 +2,6 @@ c     Automatic Time-stamp: <Last changed by martino on Tuesday 02 April 2019 at
 c################################### USERFCN DEFINITION #####################################
 
       FUNCTION USERFCN_SET(x,npar,val,funcname,j)
-      USE MOD_USERFCN_SET_F90
       IMPLICIT NONE
       INTEGER*4 npar, j
       REAL*8 val(npar)
@@ -20,6 +19,7 @@ c################################### USERFCN DEFINITION ########################
       REAL*8 FOUR_GAUSS_ERF_TWO_GAUSS_STAN3_SET
       REAL*8 ROCKING_CURVE_SET
       REAL*8 DCS_EIGHT_VOIGT_POLYBG_X0_SET
+      REAL*8 MULTIPLE_VOIGT_SET
       CHARACTER*64 funcname
 
  
