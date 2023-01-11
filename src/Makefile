@@ -168,6 +168,7 @@ F90FILES_FUNC = Mod_parameters.f90 Mod_timestamp.f90 Mod_likelihood_func.f90 \
 
 # for gfortran
 #OPT = -O2 -static
+#OPT = -O2 -static
 # For Intel fortran
 #OPT = -O2 -no-wrap-margin
 #OPT = -O2 -heap-arrays -no-wrap-margin
@@ -175,9 +176,8 @@ F90FILES_FUNC = Mod_parameters.f90 Mod_timestamp.f90 Mod_likelihood_func.f90 \
 #OPT = -fast -heap-arrays -no-wrap-margin
 #OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin
 #OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin -check uninit -check bounds -traceback
-#OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin -check uninit -check bounds -traceback 
-# OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin -check bounds -traceback 
-OPT = -Ofast -g -O3 -march=core-avx2 -heap-arrays -no-wrap-margin -check bounds -traceback 
+OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin -check uninit -check bounds -traceback -xCORE-AVX2 #Setup for SAM/SCUD
+
 
 # other debug options for gfortran
 #OPT = -g  -C -static
@@ -199,7 +199,7 @@ OPT = -Ofast -g -O3 -march=core-avx2 -heap-arrays -no-wrap-margin -check bounds 
 
 # Rules...
 #FC  = gfortran
-#FC  = ifort
+FC  = ifort
 CC  = gcc
 FC90= $(FC)
 OBJFILES = $(CFILES:.c=.o)  $(F90FILES:.f90=.o) $(FFILES:.f=.o)
