@@ -176,7 +176,7 @@ F90FILES_FUNC = Mod_parameters.f90 Mod_timestamp.f90 Mod_likelihood_func.f90 \
 #OPT = -fast -heap-arrays -no-wrap-margin
 #OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin
 #OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin -check uninit -check bounds -traceback
-OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin -check uninit -check bounds -traceback -xCORE-AVX2 #Setup for SAM/SCUD
+OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin -check uninit -check bounds -traceback 
 
 
 # other debug options for gfortran
