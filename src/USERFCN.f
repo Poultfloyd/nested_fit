@@ -3181,7 +3181,6 @@ c     Interpolation variables
       x03   = val(6)
       sigma = val(7)
       gamma = val(8)
-      gamma = val(8)
       x0    = val(9)
       a     = val(10)
       b     = val(11)
