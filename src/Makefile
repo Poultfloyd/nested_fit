@@ -51,8 +51,8 @@ F90FILES = Mod_parameters.f90 Mod_likelihood.f90 Mod_timestamp.f90 userfcn_set_f
 #OPT = -fast -heap-arrays -no-wrap-margin
 #OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin
 #OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin -check uninit -check bounds -traceback
-OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin -check uninit -check bounds -traceback 
-
+#OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin -check uninit -check bounds -traceback 
+OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin 
 
 # other debug options for gfortran
 #OPT = -g  -C -static
