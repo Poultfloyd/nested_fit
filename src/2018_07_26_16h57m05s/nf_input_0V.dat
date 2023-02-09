@@ -1,0 +1,32 @@
+4.200000    	# Program version
+2018_07_26_16h57m05s.dat	# Name of the (first) data file
+n	1	# Set of files (y/n)
+1e				# Type of data: error bars or not and dimensions (1c,1e,2c,2s,2e)
+2000 				# Number of live points				
+1e-5  	  		# Evidence final accuracy
+SLICE_SAMPLING  		# Type of search of live points	
+0.5	5	400 200	# Fraction of st. dev., n of jumps, max n. tries, max of max tries
+y k 0.3 3	# cluster analysis or not (y/n), method (f/g), distance, bandwidth
+1 200000				# Number_of_tries_and_maximum_number_of_steps_of_steps_per_tries
+TWO_INTERP_VOIGT_POLY_X0 # Name of the function	
+L					# Additional data: left/right (l/r)	
+0 0				# Additional data: npoint, nwidth for conv.		
+32.75 33.84	0 0		# xmin,	xmax	
+16				# number of parameters (and parameters)			
+#	npar	name	value	step	min	max	fixed
+1	'amp1'	10	-1	0.	1E6	0
+2	'amp2'	10	-1	0.	1E6	0
+3	'amp3'	0.	-1	0.  10	   1
+4	'x01'	0.	-1	0.02 0.06	0
+5	'x02'	0.	-1	0.	0.1	0
+6	'x03'	0.	-1	0.00 0.08	1
+7	'sigma'	0.0001	-1	0.0001	0.3	1
+8	'gamma'	0.0001	-1	0.0001	0.3	1
+9   'x0' 32.8 -1 0  1   1
+10	'a'	3.	-1	0.	10	0
+11	'b'	0.	-1	-10	0	0
+12	'c'	0.	-1	-1	1	1
+13	'd'	0.	-1	-1	1	1
+14	'e'	0.	-1	-1	1	1
+15	's_1'	800	0.	0.	1.	1
+16	's_2'	800	0.	0.	1.	1

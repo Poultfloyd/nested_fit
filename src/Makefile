@@ -1,5 +1,5 @@
 #  Automatic Time-stamp: <Last changed by martino on Tuesday 08 June 2021 at CEST 15:08:06>
-NAME    = nested_fit4.2.2_Louis.exe
+NAME    = nested_fit4.2.2_convo.exe
 
 .SUFFIXES : .f90 .f .o .c .mod
 
@@ -28,7 +28,6 @@ FFILES  =  USERFCN.f USERFCN_SET.f init_interpolation.f \
 	\
 	splev.f	 curfit.f fprati.f fprota.f fpknot.f \
 	fpdisc.f fpgivs.f fpcurf.f fpbspl.f fpchec.f fpback.f \
-	\
 	rinteg.f WOFZ.f \
 #	cw.f
 #	splint.f fpintb.f
@@ -37,8 +36,9 @@ FFILES  =  USERFCN.f USERFCN_SET.f init_interpolation.f \
 
 F90FILES = Mod_parameters.f90 Mod_likelihood.f90 Mod_timestamp.f90 userfcn_set_f90.f90 \
 	Mod_cluster_analysis.f90 Mod_search_new_point.f90 \
-	nested_fit.f90 nested_sampling.f90 \
-	USERFCN_2D.f90 \
+	nested_sampling.f90 \
+	USERFCN_2D.f90 test_convo.f90\
+	gaulag.f90 gauleg.f90 \
 	dlog_fac.f90 sortn_slatec.f90 meanvar.f90 randn.f90 shirley_fitpack.f90
 
 
@@ -51,8 +51,8 @@ F90FILES = Mod_parameters.f90 Mod_likelihood.f90 Mod_timestamp.f90 userfcn_set_f
 #OPT = -fast -heap-arrays -no-wrap-margin
 #OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin
 #OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin -check uninit -check bounds -traceback
-#OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin -check uninit -check bounds -traceback 
-OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin 
+# OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin -check uninit -check bounds -traceback 
+OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin -check bounds -traceback
 
 # other debug options for gfortran
 #OPT = -g  -C -static
@@ -99,6 +99,8 @@ $(NAME): $(OBJFILES) $(FFILES)   $(LIBG)
 .f.o:
 	$(FC) -c $(FFLAGS) ${OPT} $<
 USERFCN_SET.o: userfcn_set_f90.o
+
+
 
 clean:
 	rm -f *.o
