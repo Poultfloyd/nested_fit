@@ -153,15 +153,6 @@ F90FILES = Mod_parameters.f90 Mod_likelihood.f90 Mod_timestamp.f90 userfcn_set_f
 	Mod_metadata.f90 \
 	argparse.f90 \
 	nested_fit.f90 nested_sampling.f90 \
-	USERFCN_2D.f90 \
-	dlog_fac.f90 sortn_slatec.f90 meanvar.f90 randn.f90 shirley_fitpack.f90 \
-
-F90FILES_FUNC = Mod_parameters.f90 Mod_timestamp.f90 Mod_likelihood_func.f90 \
-	Mod_cluster_analysis.f90 Mod_search_new_point.f90 \
-	Mod_options.f90 Mod_mpi.f90 Mod_math.f90 \
-	Mod_metadata.f90 \
-        argparse.f90 \
-	nested_fit.f90 nested_sampling.f90 \
 	USERFCN_2D.f90 gaulag.f90 gauleg.f90\
 	dlog_fac.f90 sortn_slatec.f90 meanvar.f90 randn.f90 shirley_fitpack.f90
 
@@ -177,7 +168,8 @@ F90FILES_FUNC = Mod_parameters.f90 Mod_timestamp.f90 Mod_likelihood_func.f90 \
 #OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin
 #OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin -check uninit -check bounds -traceback
 #OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin -check uninit -check bounds -traceback 
-OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin 
+# OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin -check bounds -traceback 
+OPT = -Ofast -g -O3 -march=core-avx2 -heap-arrays -no-wrap-margin -check bounds -traceback 
 
 # other debug options for gfortran
 #OPT = -g  -C -static
