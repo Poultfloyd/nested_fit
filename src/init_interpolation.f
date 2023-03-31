@@ -70,6 +70,8 @@ c      pause
 
 c     For checking, write the interpolated data
       OPEN(20,file=interpolated_name,status='unknown')
+      
+
       DO i = 1, 1000
          xp = x(1) + (x(n)-x(1))/1000*(i-1)
          CALL SPLEV(t,nn,c,k,xp,yp,1,1,ier)
@@ -261,6 +263,46 @@ c      #########################################################################
 
       END
 
+
+
+c     ####################################################################################################################################
+      SUBROUTINE INIT_INTERP(s_1)
+c     Subroutine for the preliminary interpolation of the simulated spectra with two different profiles
+c     Because of the statistical noise, the spectra are fitted with as weight, the expected statistical fluctiation
+c     To note, the simulated spectra must have positive count number for all channels
+      IMPLICIT NONE
+c     Simulation variables
+      CHARACTER*64 fileinterpname_1
+      CHARACTER*64 interpolated_1
+c     Interpolation subroutine variables
+      INTEGER*4 k, nest, nn_1
+      REAL*8  s_1
+      PARAMETER (nest=1000)
+c     s_s=90,s_p=60
+      REAL*8 t_1(nest), c_1(nest), t_2(nest), c_2(nest)
+      COMMON /interp/ t_1, c_1, k, nn_1
+
+
+c     Initialize the variables
+      k = 3
+      fileinterpname_1 = 'to_interpolate_1.dat'
+      interpolated_1   = 'interpolated_1.dat'
+
+
+      WRITE(*,*) ' '
+      WRITE(*,*) '##### Initialization of the two interpolation ######'
+
+c     ############################################ 1st peak #################################################
+
+      CALL  INTERPOLATE(fileinterpname_1,
+     +     interpolated_1,s_1,t_1,c_1,k,nn_1)
+
+c      ########################################################################################################################################
+      WRITE(*,*) '########### End of interpolations ###########'
+
+
+      END
+
 c     ####################################################################################################################################
 
 
@@ -317,3 +359,68 @@ c      #########################################################################
       END
 
 c     ####################################################################################################################################
+      SUBROUTINE INIT_INTERP_CONVO(s_1)
+
+c     Subroutine for the preliminary interpolation of the simulated spectra with two different profiles
+c     Because of the statistical noise, the spectra are fitted with as weight, the expected statistical fluctiation
+c     To note, the simulated spectra must have positive count number for all channels
+      IMPLICIT NONE
+c     Simulation variables
+      CHARACTER*64 fileinterpname_1
+      CHARACTER*64 interpolated_1, funcname
+c     Interpolation subroutine variables
+      INTEGER*4 k, nest, nn_1, n,i, j, npoints
+      REAL*8  s_1, ier_1, y_1
+      REAL*8 val(8),LORE,x, USERFCN
+      PARAMETER (nest=1000,n=10000, npoints=500)
+c     s_s=90,s_p=60
+      REAL*8 t_1(nest), c_1(nest), x_int(n),w(n),tot(n)
+      COMMON /interp_convolution/ t_1, c_1, k, nn_1, x_int, w
+
+c     Initialize the variables
+      k = 3
+      fileinterpname_1 = 'to_interpolate_1.dat'
+      interpolated_1   = 'interpolated_1.dat'
+
+
+      WRITE(*,*) ' '
+      WRITE(*,*) '##### Initialization of the interpolation ######'
+
+c     ############################################ 1st peak #################################################
+
+      CALL  INTERPOLATE(fileinterpname_1,
+     +     interpolated_1,s_1,t_1,c_1,k,nn_1)
+
+c      ########################################################################################################################################
+      WRITE(*,*) '########### End of interpolations ###########'
+      WRITE(*,*) '## Initialisation of the integration method ##'
+      WRITE(*,*) "LOWER LIMIT:",t_1(1)," UPPER LIMIT:",t_1(nn_1)
+      WRITE(*,*) "NUMBER OF POINTS:", n
+      CALL GAULEG(t_1(1),t_1(nn_1),x_int,w,n)
+      WRITE(*,*) '## End of initialisation of the integration method ##'
+      DO i=1,n
+      CALL SPLEV(t_1,nn_1,c_1,k,x_int(i),y_1,1,1,ier_1)
+      w(i)= w(i)*y_1*100
+      ENDDO
+
+      val(1)=1.0
+      val(2)=0
+      val(3)=0.0000000001
+      val(4)=0
+      val(5)=0
+      val(6)=0
+      val(7)=0
+      val(8)=1000
+
+      funcname="INTERP_CONVO_POLY_X0"
+
+      DO i=1,npoints
+      x=49.77 +REAL(i-1)*REAL(0.2)/REAL(npoints)
+       
+      WRITE(*,*) x ,USERFCN(x,8,val,funcname)
+      ENDDO
+
+
+      END
+
+
