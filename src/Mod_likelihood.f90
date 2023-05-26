@@ -433,12 +433,12 @@ CONTAINS
           ! Suggestion for the values: s between m-sqrt(2*m),m+sqrt(2*m)
           ! with m the number of points
           CALL INIT_ROCKING(par_in(6),par_in(7))
-       ELSE IF(funcname.EQ.'INTERP_TWO_VOIGT_POLY_X0') THEN
+       ELSE IF(funcname.EQ.'INTERP_TWO_VOIGT_POLY_X0'&
+            .OR.funcname.EQ.'INTERP_THREE_VOIGT_POLY_X0') THEN
           CALL INIT_INTERP(par_in(13))
-       ELSE IF(funcname.EQ.'INTERP_THREE_VOIGT_POLY_X0') THEN
-          CALL INIT_INTERP(par_in(16))
        ELSE IF(funcname.EQ.'TWO_INTERP_VOIGT_POLY'&
-            .OR.funcname.EQ.'TWO_INTERP_VOIGT_POLY_X0') THEN
+            .OR.funcname.EQ.'TWO_INTERP_VOIGT_POLY_X0'&
+            .OR.funcname.EQ.'TWO_INTERP_TWO_VOIGT_POLY_X0') THEN
           ! Passing as argument the smoothing factors to be adjusted case by case
           ! Suggestion for the values: s between m-sqrt(2*m),m+sqrt(2*m)
           ! with m the number of points
@@ -467,8 +467,6 @@ CONTAINS
           ! Suggestion for the values: s between m-sqrt(2*m),m+sqrt(2*m)
           ! with m the number of points
           CALL INIT_ROCKING_SET(par_in(9),par_in(10),par_in(11),par_in(12))
-    ELSE IF(funcname.EQ.'INTERP_TWO_VOIGT_POLY_X0') THEN
-          CALL INIT_INTERP(par_in(12))
        END IF
 
 
