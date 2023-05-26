@@ -372,7 +372,7 @@ c     Interpolation subroutine variables
       INTEGER*4 k, nest, nn_1, n,i, j, npoints
       REAL*8  s_1, ier_1, y_1
       REAL*8 val(8),LORE,x, USERFCN
-      PARAMETER (nest=1000,n=10000, npoints=500)
+      PARAMETER (nest=1000,n=400, npoints=500)
 c     s_s=90,s_p=60
       REAL*8 t_1(nest), c_1(nest), x_int(n),w(n),tot(n)
       COMMON /interp_convolution/ t_1, c_1, k, nn_1, x_int, w
@@ -402,23 +402,7 @@ c      #########################################################################
       CALL SPLEV(t_1,nn_1,c_1,k,x_int(i),y_1,1,1,ier_1)
       w(i)= w(i)*y_1*100
       ENDDO
-
-      val(1)=1.0
-      val(2)=0
-      val(3)=0.0000000001
-      val(4)=0
-      val(5)=0
-      val(6)=0
-      val(7)=0
-      val(8)=1000
-
-      funcname="INTERP_CONVO_POLY_X0"
-
-      DO i=1,npoints
-      x=49.77 +REAL(i-1)*REAL(0.2)/REAL(npoints)
-       
-      WRITE(*,*) x ,USERFCN(x,8,val,funcname)
-      ENDDO
+      
 
 
       END

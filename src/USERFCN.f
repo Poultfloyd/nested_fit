@@ -246,8 +246,9 @@ c################################### USERFCN DEFINITION ########################
       REAL*8 FOUR_INTERP_VOIGT_POLY_X0
       REAL*8 MULTIPLE_VOIGT_POLY_X0
       REAL*8 INTERP_CONVO_POLY_X0, INTERP_TWO_VOIGT_POLY_X0
-
-      REAL*8 x
+      REAL*8 INTERP_THREE_VOIGT_POLY_X0
+      REAL*8 TWO_INTERP_TWO_VOIGT_POLY_X0
+      REAL*8 x, DCS_MULTIPLE_VOIGT_POLY_X0_N
       REAL*8 DCS_EIGHT_VOIGT_POLYBG_X0
       REAL*8 ELEVEN_GAUSS_WF_REL_BG, ELEVEN_GAUSS_WF_CORREL_BG
       REAL*8 DOUBLE_GAUSS_BG_Si
@@ -3422,6 +3423,90 @@ c     Save different components
       RETURN
       END
 
+
+      FUNCTION TWO_INTERP_TWO_VOIGT_POLY_X0(X,npar,val)
+c     Rocking curve with s and p polarization extracted from simulations
+      IMPLICIT NONE
+      INTEGER*4 npar
+      REAL*8 val(npar), valv1(4), valv2(4), valp(8)
+      REAL*8 TWO_INTERP_TWO_VOIGT_POLY_X0, VOIGT, POLY, x
+      REAL*8 y_1, y_2
+      REAL*8 amp1, amp2, amp3, amp4, x01, x02, x03, x04
+      REAL*8 sigma, gamma3, a, b, c, d, e, x0, gamma4
+c     Interpolation variables
+      INTEGER*4 k, nn_1, nn_2, ier_1,ier_2, nest
+      PARAMETER (nest=1000)
+      REAL*8 t_1(nest), c_1(nest), t_2(nest), c_2(nest)
+      COMMON /two_interp/ t_1, t_2, c_1, c_2, k, nn_1, nn_2
+      ! To plot the different components
+      LOGICAL plot
+      COMMON /func_plot/ plot
+
+      amp1  = val(1)
+      amp2  = val(2)
+      amp3  = val(3)
+      amp4  = val(4)
+      x01   = val(5)
+      x02   = val(6)
+      x03   = val(7)
+      x04   = val(8)
+      sigma = val(9)
+      gamma3 = val(10)
+      gamma4 = val(11)
+      x0    = val(12)
+      a     = val(13)
+      b     = val(14)
+      c     = val(15)
+      d     = val(16)
+      e     = val(17)
+
+
+c     Voigt peak 1
+      valv1(1) = x03
+      valv1(2) = amp3
+      valv1(3) = sigma
+      valv1(4) = gamma3
+
+c     Voigt peak 2
+      valv2(1) = x04
+      valv2(2) = amp4
+      valv2(3) = sigma
+      valv2(4) = gamma4
+
+c     Polynomial background
+      valp(1) = x0
+      valp(2) = a
+      valp(3) = b
+      valp(4) = c
+      valp(5) = d
+      valp(6) = e
+      valp(7) = 0.
+      valp(8) = 0.
+
+
+c     First peak
+      CALL SPLEV(t_1,nn_1,c_1,k,x-x01,y_1,1,1,ier_1)
+
+c     Second peak
+      CALL SPLEV(t_2,nn_2,c_2,k,x-x02,y_2,1,1,ier_2)
+
+      TWO_INTERP_TWO_VOIGT_POLY_X0 = amp1*y_1 + amp2*y_2 + 
+     +    VOIGT(x,4,valv1) +VOIGT(x,4,valv2) + POLY(x,8,valp)
+
+     
+
+
+c     Save different components
+      IF(plot) THEN
+         WRITE(40,*) x, TWO_INTERP_TWO_VOIGT_POLY_X0, amp1*y_1, 
+     +        amp2*y_2,
+     +      VOIGT(x,4,valv1),VOIGT(x,4,valv2), POLY(x,8,valp)
+
+      ENDIF
+
+      RETURN
+      END
+
 c ________________________________________________________________________________________________
 
       FUNCTION INTERP_TWO_VOIGT_POLY_X0(X,npar,val)
@@ -3434,7 +3519,7 @@ c     Rocking curve with s and p polarization extracted from simulations
       REAL*8 sigma, gamma1, gamma2, a, b, c, d, e, x0
       REAL*8 gamma3
 c     Interpolation variables
-      INTEGER*4 k, nn_1, nn_2, ier_1,ier_2, nest
+      INTEGER*4 k, nn_1, ier_1, nest
       PARAMETER (nest=1000)
       REAL*8 t_1(nest), c_1(nest)
       COMMON /interp/ t_1, c_1, k, nn_1
@@ -3452,8 +3537,8 @@ c     Interpolation variables
       gamma2 = val(8)
       gamma3 = val(9)
       x0    = val(10)
-      a     = val(10)
-      b     = val(11)
+      a     = val(11)
+      b     = val(12)
 
 
 
@@ -3468,6 +3553,7 @@ c     Voigt peak 2
       valv2(2) = amp3
       valv2(3) = sigma
       valv2(4) = gamma3
+
 
 c     Polynomial background
       valp(1) = x0
@@ -3495,6 +3581,96 @@ c     Save different components
       IF(plot) THEN
          WRITE(40,*) x, INTERP_TWO_VOIGT_POLY_X0, amp1*y_1, 
      +      VOIGT(x,4,valv1), VOIGT(x,4,valv2), POLY(x,8,valp)
+
+      ENDIF
+
+      RETURN
+      END
+
+
+c ________________________________________________________________________________________________
+
+      FUNCTION INTERP_THREE_VOIGT_POLY_X0(X,npar,val)
+c     Rocking curve with s and p polarization extracted from simulations
+      IMPLICIT NONE
+      INTEGER*4 npar
+      REAL*8 val(npar), valv1(4), valv2(4), valv3(4), valp(8)
+      REAL*8 INTERP_THREE_VOIGT_POLY_X0, VOIGT, POLY, x, y_1
+      REAL*8 amp1, amp2, amp3, x01, x02, x03, x04
+      REAL*8 sigma, gamma1, gamma2, a, b, c, d, e, x0
+      REAL*8 gamma3, gamma4, amp4
+c     Interpolation variables
+      INTEGER*4 k, nn_1, ier_1, nest
+      PARAMETER (nest=1000)
+      REAL*8 t_1(nest), c_1(nest)
+      COMMON /interp/ t_1, c_1, k, nn_1
+      ! To plot the different components
+      LOGICAL plot
+      COMMON /func_plot/ plot
+
+      amp1  = val(1)
+      amp2  = val(2)
+      amp3  = val(3)
+      amp4  = val(4)
+      x01   = val(5)
+      x02   = val(6)
+      x03   = val(7)
+      x04   = val(8)
+      sigma = val(9)
+      gamma2 = val(10)
+      gamma3 = val(11)
+      gamma4 = val(12)
+      x0    = val(13)
+      a     = val(14)
+      b     = val(15)
+
+
+
+c     Voigt peak 1
+      valv1(1) = x02
+      valv1(2) = amp2
+      valv1(3) = sigma
+      valv1(4) = gamma2
+
+c     Voigt peak 2
+      valv2(1) = x03
+      valv2(2) = amp3
+      valv2(3) = sigma
+      valv2(4) = gamma3
+
+c     Voigt peak 3
+      valv3(1) = x04
+      valv3(2) = amp4
+      valv3(3) = sigma
+      valv3(4) = gamma4
+
+c     Polynomial background
+      valp(1) = x0
+      valp(2) = a
+      valp(3) = b
+      valp(4) = 0.
+      valp(5) = 0.
+      valp(6) = 0.
+      valp(7) = 0.
+      valp(8) = 0.
+
+
+c     First peak
+      CALL SPLEV(t_1,nn_1,c_1,k,x-x01,y_1,1,1,ier_1)
+
+
+
+      INTERP_THREE_VOIGT_POLY_X0 = amp1*y_1  + VOIGT(x,4,valv1) +
+     +     VOIGT(x,4,valv2) + VOIGT(x,4,valv3)+ POLY(x,8,valp)
+
+     
+
+
+c     Save different components
+      IF(plot) THEN
+         WRITE(40,*) x, INTERP_THREE_VOIGT_POLY_X0, amp1*y_1, 
+     +      VOIGT(x,4,valv1), VOIGT(x,4,valv2), VOIGT(x,4,valv3),
+     +      POLY(x,8,valp)
 
       ENDIF
 
@@ -7074,12 +7250,12 @@ c            valv((i-1)*4:4*i)= valtemp
       END DO
       
       IF(plot) THEN
-            WRITE(40,'(F25.10,X)',ADVANCE='NO') x
-            WRITE(40,'(F25.10,X)',ADVANCE='NO') MULTIPLE_VOIGT_POLY_X0
+            WRITE(40,'(F)',ADVANCE='NO') x
+            WRITE(40,'(F)',ADVANCE='NO') MULTIPLE_VOIGT_POLY_X0
             DO i=1,nvoigt
-                  WRITE(40,'(F25.10),X',ADVANCE='NO') valvoigts(i)
+                  WRITE(40,'(F)',ADVANCE='NO') valvoigts(i)
             END DO
-            WRITE(40,'(F25.10)') POLY(x-xp,8,valp)
+            WRITE(40,'(F)') POLY(x-xp,8,valp)
       ENDIF
 
 
@@ -7098,7 +7274,7 @@ c     Rocking curve with s and p polarization extracted from simulations
       REAL*8 sigma, gamma, a, b, c, d, e, xp
 c     Interpolation variables
       INTEGER*4 k, nn_1, nn_2, ier_1, nest, n, i
-      PARAMETER (nest=1000, n=10000)
+      PARAMETER (nest=1000, n=400)
       REAL*8 t_1(nest), c_1(nest),x_int(n), w(n), tot(n), conv
       COMMON /interp_convolution/ t_1, c_1, k, nn_1, x_int, w
       ! To plot the different components
@@ -7152,3 +7328,114 @@ c     Save different components
       END
 
 
+
+      FUNCTION DCS_MULTIPLE_VOIGT_POLY_X0_N(X,npar,val) 
+c     The value of 'amp' is the value of the surface below the curve
+      IMPLICIT NONE
+      INTEGER*4 npar
+      INTEGER*4 nvoigt
+      REAL*8 val(npar),val1(4), valtemp(4), valp(8)
+      REAL*8 valvoigts(npar)
+      INTEGER nparamv, nparamtemp
+      REAL*8 DCS_MULTIPLE_VOIGT_POLY_X0_N, VOIGT, POLY, x
+      REAL*8 pi
+      PARAMETER(pi=3.141592653589793d0)
+c      REAL*8 valv(npar+INT(val(1)))
+c      REAL*8 valv(40)
+      REAL*8 xv, xp
+      REAL*8 amp
+      REAL*8 sigma, valv1(4),valv2(4)
+      REAL*8 gammav, sigma1, sigma2
+      REAL*8 a, b, c, d, e, f, g
+      INTEGER*4 i
+      CHARACTER*1 lr
+      COMMON /func_exp/ lr
+      ! To plot the different components
+      LOGICAL plot
+      COMMON /func_plot/ plot
+      
+      
+      nvoigt = INT(val(1))
+      xv     = val(2)
+      xp     = val(3)
+      amp    = val(4)
+      sigma  = val(5)
+      gammav = val(6)
+      a      = val(7)
+      b      = val(8)
+      c      = val(9)
+      d      = val(10)
+      e      = val(11)
+      f      = val(12)
+      g      = val(13)
+
+      nparamv=4*nvoigt
+
+c     first voigt peak
+      val1(1) = xv
+      val1(2) = amp
+      val1(3) = sigma
+      val1(4) = gammav
+
+c     Polynomial background
+      valp(1) = xp
+      valp(2) = a
+      valp(3) = b
+      valp(4) = c
+      valp(5) = d
+      valp(6) = e
+      valp(7) = 0.
+      valp(8) = 0.
+
+
+      valvoigts(1)=VOIGT(x,4,val1)
+      DCS_MULTIPLE_VOIGT_POLY_X0_N = valvoigts(1) + POLY(x-xp,8,valp)
+
+
+c     Numerous voigt
+      DO i=1,(nvoigt-1)
+            nparamtemp=(i-1)*3+13
+            valtemp(1) = xv+val(nparamtemp+1)
+            valtemp(2) = amp*val(nparamtemp+2)
+            valtemp(3) = sigma
+            valtemp(4) = val(nparamtemp+3)
+c            valv((i-1)*4:4*i)= valtemp
+            valvoigts(i+1)= VOIGT(x,4,valtemp)
+            DCS_MULTIPLE_VOIGT_POLY_X0_N = DCS_MULTIPLE_VOIGT_POLY_X0_N
+     +      + valvoigts(i+1)
+
+      END DO
+
+c     First neighbour peak
+
+
+      valv1(1)=val(13+3*(nvoigt-1)+1)
+      valv1(2)=val(13+3*(nvoigt-1)+2)
+      valv1(3)=val(13+3*(nvoigt-1)+3)
+      valv1(4)=val(13+3*(nvoigt-1)+4)
+      
+c     second neighbour peak
+
+      valv2(1)=val(13+3*(nvoigt-1)+5)
+      valv2(2)=val(13+3*(nvoigt-1)+6)
+      valv2(3)=val(13+3*(nvoigt-1)+7)
+      valv2(4)=val(13+3*(nvoigt-1)+8)
+      
+      DCS_MULTIPLE_VOIGT_POLY_X0_N = DCS_MULTIPLE_VOIGT_POLY_X0_N + 
+     + VOIGT(x,4,valv1) + VOIGT(x,4,valv2)
+
+      IF(plot) THEN
+            WRITE(40,'(F)',ADVANCE='NO') x
+      WRITE(40,'(F)',ADVANCE='NO') DCS_MULTIPLE_VOIGT_POLY_X0_N
+            DO i=1,nvoigt
+                  WRITE(40,'(F)',ADVANCE='NO') valvoigts(i)
+            END DO
+            WRITE(40,'(F)',ADVANCE='NO') VOIGT(x,4,valv1)
+            WRITE(40,'(F)',ADVANCE='NO') VOIGT(x,4,valv2)
+            WRITE(40,'(F)') POLY(x-xp,8,valp)
+      ENDIF
+
+
+
+      RETURN
+      END
