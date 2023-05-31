@@ -66,7 +66,7 @@ macro(generate_test_subfolders ttype)
             file(READ ${CMAKE_CURRENT_SOURCE_DIR}/${ttype}/${data_test}/modes.json json_data_str)
             
             # Set the variables for the input file config
-            string(JSON variants ERROR_VARIABLE var_found GET ${json_data_str} "variants" 0 "search_func")
+#            string(JSON variants ERROR_VARIABLE var_found GET ${json_data_str} "variants" 0 "search_func")
             if(DEFINED variants)
                 string(JSON variants_length LENGTH ${json_data_str} "variants")
                 MATH(EXPR variants_loop_idx "${variants_length}-1")
