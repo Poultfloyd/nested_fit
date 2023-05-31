@@ -16,6 +16,8 @@ Users are also required to cite the Nested Fit papers here below in their public
 [doi:10.1016/j.nimb.2017.05.030](http://dx.doi.org/10.1016/j.nimb.2017.05.030),  [	arXiv:1611.10189](https://arxiv.org/abs/1611.10189)\
 - [B] M. Trassinelli, *The Nested_fit Data Analysis Program*, Proceedings **33**, 14 (2019), [doi:10.3390/proceedings2019033014](https://doi.org/10.3390/proceedings2019033014)\
 - [C] M. Trassinelli, P. Ciccodicola *Mean Shift Cluster Recognition Method Implementation in the Nested Sampling Algorithm*, Entropy **22**, 185 (2020), [doi:10.3390/e22020185](https://doi.org/10.3390/e22020185)
+\
+- [D] L. Maillard, F. Finocchi, M. Trassinelli * *Assessing Search and Unsupervised Clustering Algorithms in Nested Sampling*, Entropy **25**, 347 (2023), [doi:10.3390/e25020347](https://doi.org/10.3390/e25020347)
 
 ### Authors
 Dr. Martino Trassinelli\
@@ -26,19 +28,46 @@ email: m.trassinelli AT gmail.com
 Lune Maillard\
 Institute of NanoSciences of Paris, Sorbonne Université, CNRS\
 email: lune.maillard AT insp.upmc.fr
+
+César Godinho\
+LIBPhys / NOVA University of Lisbon\
+email: c.godinho AT campus.fct.unl.pt
+
 ## Installation instructions ##
 **Prerequisite**:
+- CMake
 - Fortran compiler (gfortran by default)
 - Python 3 with numpy, scipy, matplotlib, pandas, getdist
 
 **Instruction**:
 1. Download the latest version or clone the repository
-2. Go to the source directory `src`
-3. Edit the Makefile (change the compiler name, the `bin` directory if needed). If you want to run in parallel mode, \
-  a. Uncomment `FFLAGS  = -fopenmp` in the Makefile\
-  b. Put the variable `parallel_on = .TRUE.` in nested_fit.f
-4. Run `make`  
-5. For the python libraries: put in a directory listed in the `PYTHONPATH` in the .bashrc file (or similar) or in the directory of the input files
+2. Run the commands:
+```
+cd nested_fit
+mkdir build && cd build
+cmake ..
+make
+```
+These command will build two different executables in the bin directory: 
+- `nested_fitXXX` for likelihood function maximisation for data analysis,
+- `nested_fit_funcXXX` for functions maximisation not using data. 
+
+> :warning: For Windows you can compile by replacing the second line of the above commands with `cmake -G"MinGW Makefiles" ..`, for simplicity.
+
+**CMake options**
+
+| Option   | Description                                                     | Default |
+|:---------|:----------------------------------------------------------------|:-------:|
+|DEBUG     | Enable debug mode.                                              | OFF     |
+|NORNG     | Set the nested_fit to use a set seed. Internal test use mainly. | OFF     |
+|OPENMP    | Enable/Disable OpenMP support.                                  | OFF     |
+|OPENMPI   | Enable/Disable OpenMPI support.                                 | OFF     |
+|AUTOTESTS | Automatically run tests after compiling.                        | OFF     |
+
+
+
+> You can pass in options on the cmake step via: `cmake -D<option_name>=<ON/OFF> ..`\
+> These will prevail any time you run the `make` command.
 
 NOTE for getdist function in the python library:\
 To make it work, change the file  xxx/pythonxx/site-packages/getdist/plots.py
@@ -68,10 +97,10 @@ Together with this file, also the files `nf_output_points.paramnames` and `nf_ou
 
 **Details of the input file line by line**
 ```
-4.1           # Program version
-he-histo.dat  # Name of the (first) data file
-n             # Set of files (y/n)
-1c            # Type of data: error bars or not and dimensions (1c,1e,2c,2s,2e)
+4.4                 # Program version
+he-histo.dat        # Name of the (first) data file
+n                   # Set of files (y/n)
+1c                  # Type of data: error bars or not and dimensions (1c,1e,2c,2s,2e)
 ```
 - `1c`: one dimensional spectrum with counts. \
 Input: (x, n. counts)
@@ -85,15 +114,27 @@ Input: (x, y, n. counts) TO BE IMPLEMENTED
 Input: (x, y, z, error z) TO BE IMPLEMENTED
 
 ```
-200                      # Number of live points
-1.E-05                   # Evidence final accuracy
-RANDOM_WALK              # Type of search of live points
-0.1	20	100	10   # Param. search algo.(2), max n. tries, max of max tries
+200                 # Number of live points
+LIKE_ACC            # Method used for convergence 
+1.E-05    0.01      # Evidence final accuracy and additional convergence parameter
+```
+
+For the moment, there are three convergence methods:
+- `LIKE_ACC`: the algorithm stops when the difference between the calculated evidence and the estimated total evidence is below a certain value (first parameter on the above line). Typical value for the parameter : 1.E-05. In this case, the function that is maximised is the log-likelihood and it is associated to data.
+- `ENERGY_ACC`: the algorithm stops when the difference between the calculated partition function and the estimated total partition function is below a certain value (first parameter on the above line). The second parameter corresponds to the temperature at which the partition function is calculated. Typical value for the first parameter : 1.E-05. In this case, the function that is maximised is the opposite of the energy function.
+- `ENERGY_MAX`: the algorithm stops when the difference between the current contribution to the partion function and its maximal previous contribution is below a certain value (first parameter on the above line). The second parameter corresponds to the temperature at which the partition function is calculated. Typical value for the first parameter : -10.  In this case, the function that is maximised is the opposite of the energy function.
+
+After convergence is reached, all remaining live points are assigned: 
+- the logarithm of the likelihoods averaged over the live points (`LIKE_ACC` case),
+- the opposite of the energies averaged over the live points (`ENERGY_ACC` and `ENERGY_MAX` cases).
+```
+RANDOM_WALK         # Type of search of live points
+0.1  20   100  10   # Param. search algo.(2), max n. tries, max of max tries
 ```
 For the moment, a random walk (`RANDOM_WALK`), a uniform search around each live point (`UNIFORM`), slice sampling (`SLICE_SAMPLING`) and slice sampling with an adaptable step (`SLICE_SAMPLING_ADAPT`) are implemented. The first two parameters of the above line are specific to the search algorithm:
 - `RANDOM_WALK` par. 1: fraction of standard deviation for each jump, par. 2: number of jumps. Suggested values: 0.1-0.2, 10-40.
 - `SLICE_SAMPLING` and `SLICE_SAMPLING_ADAPT` par. 1: fraction of standard deviation for segment exploration, par. 2: number of jumps. Suggested values: ~1, 3-5.
-- `UNIFORM` par. 1: fraction of standard deviation for the box size, par. 2: number of jumps. Suggested values: 0.1-11, 1.
+- `UNIFORM` par. 1: fraction of standard deviation for the box size, par. 2: number of jumps. Suggested values: 0.1-1, 1.
 
 
 ```
@@ -109,12 +150,12 @@ For the second option:
 - `k`: k nearest neighbours (no parameters)
 
 ```
-1	100000			  # Number of runs and maximum of steps
-GAUSS_BG 	  		  # Name of the function
-L               		 # Additional data: left/right (l/r)
-500     20      		 # Additional data:  npoint, nwidth for convolution
-1   1024  1 1024   	  # xmin, xmax, ymin, ymax
-4               		 # number of parameters
+1    100000         # Number of runs and maximum of steps
+GAUSS_BG            # Name of the function
+L                   # Additional data: left/right (l/r)
+500     20          # Additional data:  npoint, nwidth for convolution
+1   1024  1 1024    # xmin, xmax, ymin, ymax
+4                   # number of parameters
 # npar  name    value   step    min     max     fixed
 1	'bg'	0.11	-1	0.	0.5	0
 2	'x0'	454.6	-1	400	600	0
@@ -126,11 +167,20 @@ Additional information can be found in the reference articles.
 
 ## Present version and history of the past versions
 
-The present version is 4.2
+The present version is 4.4.3
 New features:
-- additional search methods : Uniform search around each live point and Slice Sampling  
+- OpenMPI support (only available for number of tries)
+- OpenMP parallelisation for independent live point search 
+- New user function calling method
+- Add Windows support
+- New build system generator (CMake)
+- Improved performance
+
 
 Previous versions are:
+ - 4.3 New (test) function : harmonic potential in 3D and loggamma \
+ Choice between different convergence methods : evidence or partition function  
+ - 4.2 Additional search methods : Uniform search around each live point and Slice Sampling
  - 4.1.1 New cluster recognition methods added
  - 4.0.3 2D data analysis for count-type XY \
  Computation acceleration for the 1D case introducing a mask instead of IF condition in the likelihood \

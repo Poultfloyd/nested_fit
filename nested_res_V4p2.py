@@ -437,7 +437,10 @@ class Analysis(object):
         maxy = y.max() * 1.3
 
         # Plot the results
-        plt.figure()
+        if figsize==(0,0):
+            plt.figure()
+        else:
+            plt.figure(figsize=figsize)
         plt.clf()
         plt.title("Fit result")
         plt.xlabel("Channel")

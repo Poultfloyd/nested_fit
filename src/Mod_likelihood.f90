@@ -18,7 +18,7 @@ MODULE MOD_LIKELIHOOD
   IMPLICIT NONE
 
   ! Data variables
-  INTEGER(4) :: ndata
+  INTEGER(4) :: ndata, ncall=0
   INTEGER(4), DIMENSION(nsetmax) :: ndata_set=0
   REAL(8), ALLOCATABLE, DIMENSION(:,:) :: x, nc, nc_err
   ! Data variable for 2D images
@@ -32,7 +32,9 @@ CONTAINS
 
   SUBROUTINE INIT_LIKELIHOOD()
     ! Initialize the normal likelihood with data files and special function
-
+    
+    ! Initialize the search method params
+    CALL INIT_SEARCH_METHOD()
 
     ! Read data ------------------------------------------------------------------------------------------------------------------------
     CALL READ_DATA()
@@ -44,6 +46,29 @@ CONTAINS
 
 
   !#####################################################################################################################
+
+  SUBROUTINE INIT_SEARCH_METHOD()
+#ifdef OPENMPI_ON
+      INTEGER(4) :: mpi_ierror
+#endif
+
+      IF (search_method.eq.'RANDOM_WALK') THEN
+            searchid = 0
+      ELSE IF(search_method.EQ.'UNIFORM') THEN
+            searchid = 1
+      ELSE IF(search_method.EQ.'SLICE_SAMPLING') THEN
+            searchid = 2
+      ELSE IF(search_method.EQ.'SLICE_SAMPLING_ADAPT') THEN
+            searchid = 3
+      ELSE
+            WRITE(*,*) 'Error of the search type name in Mod_search_new_point module'
+            WRITE(*,*) 'Check the manual and the input file'
+#ifdef OPENMPI_ON
+            CALL MPI_Abort(MPI_COMM_WORLD, 1, mpi_ierror)
+#endif
+            STOP
+      END IF
+  END SUBROUTINE INIT_SEARCH_METHOD
 
   SUBROUTINE READ_DATA()
     ! Subroutine to read data files
@@ -316,13 +341,69 @@ CONTAINS
 
   !#####################################################################################################################
 
-
-
+#define DATA_IS_C   B'00000001'
+#define DATA_IS_E   B'00000010'
+#define DATA_IS_1D  B'00010000'
+#define DATA_IS_2D  B'00100000'
+#define DATA_IS_SET B'10000000'
+#define BIT_CHECK_IF(what) (IAND(dataid, what).GT.0)
+  
   SUBROUTINE INIT_FUNCTIONS()
-    ! Subroutine to initialize the user functions if needed
+    ! Subroutine to initialize the user functions, functions id and data ids
+
+    INTEGER(4) :: SELECT_USERFCN, SELECT_USERFCN_SET, SELECT_USERFCN_2D
+
+    ! Init the dataid for data types !
+    ! ------------------------------ !
+    ! This integer works like this:  !
+    !  yn ud 2  1     ud ud e  c     !
+    !  b7 b6 b5 b4    b3 b2 b1 b0    !
+    !  ~~ ~~~~~~~~    ~~~~~~~~~~~    !
+    !  ^      ^            ^         !
+    ! set  Data dim    Data type     !
+    ! ------------------------------ !
+    ! ud = undefined (space for a 3d analysis [b6] and other distributions [b2, b3])
+    ! yn = 0/1 -> n/y
+    ! TODO(Cesar): The e/c 1/2 could live in the same bit, making comparisons even faster
+    ! TODO(Cesar): But there wouldn't be much space for working with other values in the future
+    
+    ! Is the data 1 or 2-D ?
+    IF(data_type(1:1).EQ.'1') THEN
+       dataid = IOR(dataid, DATA_IS_1D)
+    ELSE IF(data_type(1:1).EQ.'2') THEN
+       dataid = IOR(dataid, DATA_IS_2D)
+    END IF
+
+    ! Should we use a poisson distribution or do we have the error bars ?
+    IF(data_type(2:2).EQ.'c') THEN
+       dataid = IOR(dataid, DATA_IS_C)
+    ELSE IF(data_type(2:2).EQ.'e') THEN
+       dataid = IOR(dataid, DATA_IS_E)
+    END IF
+
+    ! Is this a set ?
+    IF(set_yn.EQ.'y'.OR.set_yn.EQ.'Y') THEN
+       dataid = IOR(dataid, DATA_IS_SET)
+    END IF
+
+
+    ! Init the funcid for function names
+    IF(.NOT.BIT_CHECK_IF(DATA_IS_SET)) THEN
+       IF(BIT_CHECK_IF(DATA_IS_1D)) THEN
+          funcid = SELECT_USERFCN(funcname)
+       ELSE
+          funcid = SELECT_USERFCN_2D(funcname)
+       END IF
+    ELSE
+       IF(BIT_CHECK_IF(DATA_IS_2D)) THEN
+          WRITE(*,*) 'Sets for 2D functions are not yet implemented.'
+          STOP
+       END IF
+       funcid = SELECT_USERFCN_SET(funcname)
+    END IF
 
     ! Initialise functions if needed
-    IF (set_yn.EQ.'n'.OR.set_yn.EQ.'N') THEN
+    IF (.NOT.BIT_CHECK_IF(DATA_IS_SET)) THEN
        IF(funcname.EQ.'ROCKING_CURVE') THEN
           ! Passing as argument the smoothing factors to be adjusted case by case
           ! Suggestion for the values: s between m-sqrt(2*m),m+sqrt(2*m)
@@ -368,13 +449,12 @@ CONTAINS
 
     REAL(8), DIMENSION(npar), INTENT(IN) :: par
 
-    IF (data_type(1:1).EQ.'1') THEN
+    ncall=ncall+1
+    IF (BIT_CHECK_IF(DATA_IS_1D)) THEN
        LOGLIKELIHOOD = LOGLIKELIHOOD_1D(par)
-    ELSE IF (data_type(1:1).EQ.'2') THEN
+    ELSE IF (BIT_CHECK_IF(DATA_IS_2D)) THEN
        LOGLIKELIHOOD = LOGLIKELIHOOD_2D(par)
     END IF
-
-
 
   END FUNCTION LOGLIKELIHOOD
 
@@ -387,37 +467,38 @@ CONTAINS
     REAL(8), DIMENSION(npar), INTENT(IN) :: par
     !
     REAL(8) :: enc
-    INTEGER(4) :: i, j, k=1
+    INTEGER(4) :: i, j, k
     REAL(8) :: USERFCN, USERFCN_SET, USERFCN_2D, xx, yy
 
-    IF (data_type.EQ.'1c') THEN
+    ncall=ncall+1
+    IF (BIT_CHECK_IF(DATA_IS_C).AND.BIT_CHECK_IF(DATA_IS_1D)) THEN
        ! Check if the choosen function assumes zero or negative values
        DO k=1,nset
           DO i=1, ndata_set(k)
              ! Poisson distribution calculation --------------------------------------------------
-             IF (set_yn.EQ.'n'.OR.set_yn.EQ.'N') THEN
-                enc = USERFCN(x(i,k),npar,par,funcname)
+             IF (.NOT.BIT_CHECK_IF(DATA_IS_SET)) THEN
+                enc = USERFCN(x(i,k),npar,par,funcid)
              ELSE
-                enc = USERFCN_SET(x(i,k),npar,par,funcname,k)
+                enc = USERFCN_SET(x(i,k),npar,par,funcid,k)
              END IF
              IF (enc.LE.0) THEN
                 WRITE(*,*) 'LIKELIHOOD ERROR: put a background in your function'
                 WRITE(*,*) 'number of counts different from 0, model prediction equal 0 or less'
                 WRITE(*,*) 'Function value = ', enc, ' n. counts = ', nc(i,k)
-                STOP
+                STOP ! TODO(Cesar): Handle all of these errors for the case of MPI
              END IF
           END DO
        END DO
        LOGLIKELIHOOD_WITH_TEST = LOGLIKELIHOOD_1D(par)
-    ELSE IF (data_type.EQ.'1e') THEN
-      LOGLIKELIHOOD_WITH_TEST = LOGLIKELIHOOD_1D(par)
-    ELSE IF (data_type.EQ.'2c') THEN
+    ELSE IF (BIT_CHECK_IF(DATA_IS_E).AND.BIT_CHECK_IF(DATA_IS_1D)) THEN
+       LOGLIKELIHOOD_WITH_TEST = LOGLIKELIHOOD_1D(par)
+    ELSE IF (BIT_CHECK_IF(DATA_IS_C).AND.BIT_CHECK_IF(DATA_IS_2D)) THEN
        ! Check if the choosen function assumes zero or negative values
        DO i=1, nx
           DO j=1, ny
              xx = i - 0.5 + xmin(k) ! Real coordinates are given by the bins, the center of the bin.
              yy = j - 0.5 + ymin(k) ! additional -1 to take well into account xmin,ymin
-             enc = USERFCN_2D(xx,yy,npar,par,funcname)
+             enc = USERFCN_2D(xx,yy,npar,par,funcid)
              IF (enc.LE.0) THEN
                 WRITE(*,*) 'LIKELIHOOD ERROR: put a background in your function'
                 WRITE(*,*) 'number of counts different from 0, model prediction equal 0 or less'
@@ -427,8 +508,8 @@ CONTAINS
           END DO
        END DO
        LOGLIKELIHOOD_WITH_TEST = LOGLIKELIHOOD_2D(par)
-    ELSE IF (data_type.EQ.'2e') THEN
-      LOGLIKELIHOOD_WITH_TEST = LOGLIKELIHOOD_2D(par)
+    ELSE IF (BIT_CHECK_IF(DATA_IS_E).AND.BIT_CHECK_IF(DATA_IS_2D)) THEN
+       LOGLIKELIHOOD_WITH_TEST = LOGLIKELIHOOD_2D(par)
 
     END IF
 
@@ -447,51 +528,52 @@ CONTAINS
     !
     REAL(8) :: USERFCN, USERFCN_SET
     REAL(8) :: ll_tmp, enc
-    INTEGER(4) :: i=0, k=0
+    INTEGER(4) :: i, k
 
 
     ! Calculate LIKELIHOOD
     ll_tmp = 0.
 
-    IF (set_yn.EQ.'n'.OR.set_yn.EQ.'N') THEN
+    IF (.NOT.BIT_CHECK_IF(DATA_IS_SET)) THEN
        ! No set --------------------------------------------------------------------------------------------------------
+       !TODO(César): This is unnecessary and somewhat verbose
        k=1
-       IF (data_type.EQ.'1c') THEN
-          !$OMP PARALLEL DO PRIVATE(i,enc) REDUCTION(+:ll_tmp)
+       IF (BIT_CHECK_IF(DATA_IS_C)) THEN
+          !!$OMP PARALLEL DO PRIVATE(i,enc) REDUCTION(+:ll_tmp)
           DO i=1, ndata_set(k)
              ! Poisson distribution calculation --------------------------------------------------
-             enc = USERFCN(x(i,k),npar,par,funcname)
+             enc = USERFCN(x(i,k),npar,par,funcid)
              ll_tmp = ll_tmp + nc(i,k)*DLOG(enc) - enc
           END DO
-          !$OMP END PARALLEL DO
-       ELSE IF (data_type.EQ.'1e') THEN
-          !$OMP PARALLEL DO PRIVATE(i,enc) REDUCTION(+:ll_tmp)
+          !!$OMP END PARALLEL DO
+       ELSE !IF (BIT_CHECK_IF(DATA_IS_E)) THEN
+          !!$OMP PARALLEL DO PRIVATE(i,enc) REDUCTION(+:ll_tmp)
           DO i=1, ndata_set(k)
              ! Normal (Gaussian) distribution calculation --------------------------------------
-             enc = USERFCN(x(i,k),npar,par,funcname)
+             enc = USERFCN(x(i,k),npar,par,funcid)
              ll_tmp = ll_tmp - (nc(i,k) - enc)**2/(2*nc_err(i,k)**2)
           ENDDO
-          !$OMP END PARALLEL DO
+          !!$OMP END PARALLEL DO
        END IF
     ELSE
        ! Set ----------------------------------------------------------------------------------------------------------
        DO k=1,nset
-          IF (data_type.EQ.'1c') THEN
-             !$OMP PARALLEL DO PRIVATE(i,enc) REDUCTION(+:ll_tmp)
+          IF (BIT_CHECK_IF(DATA_IS_C)) THEN
+             !!$OMP PARALLEL DO PRIVATE(i,enc) REDUCTION(+:ll_tmp)
              DO i=1, ndata_set(k)
                 ! Poisson distribution calculation --------------------------------------------------
-                enc = USERFCN_SET(x(i,k),npar,par,funcname,k)
+                enc = USERFCN_SET(x(i,k),npar,par,funcid,k)
                 ll_tmp = ll_tmp + nc(i,k)*DLOG(enc) - enc
              END DO
-             !$OMP END PARALLEL DO
+             !!$OMP END PARALLEL DO
           ELSE
-             !$OMP PARALLEL DO PRIVATE(i,enc) REDUCTION(+:ll_tmp)
+             !!$OMP PARALLEL DO PRIVATE(i,enc) REDUCTION(+:ll_tmp)
              DO i=1, ndata_set(k)
                 ! Normal (Gaussian) distribution calculation --------------------------------------
-                enc = USERFCN_SET(x(i,k),npar,par,funcname,k)
+                enc = USERFCN_SET(x(i,k),npar,par,funcid,k)
                 ll_tmp = ll_tmp - (nc(i,k) - enc)**2/(2*nc_err(i,k)**2)
              ENDDO
-             !$OMP END PARALLEL DO
+             !!$OMP END PARALLEL DO
           END IF
        END DO
     END IF
@@ -513,23 +595,23 @@ CONTAINS
     !
     REAL(8) :: USERFCN_2D
     REAL(8) :: ll_tmp, enc, xx, yy
-    INTEGER(4) :: i=0, j=0, k=1
+    INTEGER(4) :: i, j, k
 
 
     ! Calculate LIKELIHOOD
     ll_tmp = 0.
 
-    !$OMP PARALLEL DO PRIVATE(i,j,xx,yy,enc) REDUCTION(+:ll_tmp)
-    DO i=1, nx
-       DO j=1, ny
+    !!$OMP PARALLEL DO PRIVATE(i,j,xx,yy,enc) REDUCTION(+:ll_tmp)
+    DO j=1, ny ! inversion of i,j for increasing memory administration efficency (but not differences noticed for te moment)
+       DO i=1, nx
           ! Poisson distribution calculation --------------------------------------------------
           xx = i - 0.5 + xmin(k) ! Real coordinates are given by the bins, the center of the bin.
           yy = j - 0.5 + ymin(k) ! additional -1 to take well into account xmin,ymin
-          enc = USERFCN_2D(xx,yy,npar,par,funcname)
+          enc = USERFCN_2D(xx,yy,npar,par,funcid)
           ll_tmp = ll_tmp + adata_mask(i,j)*(adata(i,j)*DLOG(enc) - enc)
        END DO
     END DO
-    !$OMP END PARALLEL DO
+    !!$OMP END PARALLEL DO
 
     ! Sum all together
     LOGLIKELIHOOD_2D = ll_tmp + const_ll
@@ -551,6 +633,13 @@ CONTAINS
        CALL WRITE_EXPECTED_VALUES_2D(live_max,par_mean,par_median_w)
     END IF
 
+    WRITE(*,*) ' '
+    WRITE(*,*) 'End of likelihood test'
+    WRITE(*,*) 'Number of calls : ', ncall
+    OPEN(11,FILE='nf_output_n_likelihood_calls.txt',STATUS= 'UNKNOWN')
+    WRITE(11,*) ncall
+    CLOSE(11)
+    
     ! Deallocate variables
     CALL DEALLOCATE_DATA()
 
@@ -584,7 +673,7 @@ CONTAINS
        OPEN (UNIT=20, FILE='nf_output_data_max.dat', STATUS='unknown')
        WRITE(20,*)'# x    y data    y theory      y diff    y err'
        DO i=1, ndata
-          enc = USERFCN(x(i,k),npar,live_max,funcname)
+          enc = USERFCN(x(i,k),npar,live_max,funcid)
           IF (data_type.EQ.'1e') THEN
              WRITE(20,*) x(i,k), ' ',nc(i,k), ' ',enc, ' ',nc(i,k)-enc, ' ', nc_err(i,k)
           ELSE IF (data_type.EQ.'1c') THEN
@@ -596,7 +685,7 @@ CONTAINS
        OPEN (UNIT=20, FILE='nf_output_data_mean.dat', STATUS='unknown')
        WRITE(20,*)'# x    y data    y theory      y diff    y err'
        DO i=1, ndata
-          enc = USERFCN(x(i,k),npar,par_mean,funcname)
+          enc = USERFCN(x(i,k),npar,par_mean,funcid)
           IF (data_type.EQ.'1e') THEN
              WRITE(20,*) x(i,k), ' ',nc(i,k), ' ',enc, ' ',nc(i,k)-enc, ' ', nc_err(i,k)
           ELSE IF (data_type.EQ.'1c') THEN
@@ -608,7 +697,7 @@ CONTAINS
        OPEN (UNIT=20, FILE='nf_output_data_median.dat', STATUS='unknown')
        WRITE(20,*)'# x    y data    y theory      y diff    y err'
        DO i=1, ndata
-          enc = USERFCN(x(i,k),npar,par_median_w,funcname)
+          enc = USERFCN(x(i,k),npar,par_median_w,funcid)
           IF (data_type.EQ.'1e') THEN
              WRITE(20,*) x(i,k), ' ',nc(i,k), ' ',enc, ' ',nc(i,k)-enc, ' ', nc_err(i,k)
           ELSE IF (data_type.EQ.'1c') THEN
@@ -625,7 +714,7 @@ CONTAINS
           OPEN (UNIT=30, FILE=out_filename, STATUS='unknown')
           WRITE(30,*)'# x    y data    y theory      y diff    y err'
           DO i=1, ndata_set(k)
-             enc = USERFCN_SET(x(i,k),npar,live_max,funcname,k)
+             enc = USERFCN_SET(x(i,k),npar,live_max,funcid,k)
              IF (data_type.EQ.'1e') THEN
                 WRITE(30,*) x(i,k), ' ',nc(i,k), ' ',enc, ' ',nc(i,k)-enc, ' ',  nc_err(i,k)
              ELSE IF (data_type.EQ.'1c') THEN
@@ -638,7 +727,7 @@ CONTAINS
           OPEN (UNIT=30, FILE=out_filename, STATUS='unknown')
           WRITE(30,*)'# x    y data    y theory      y diff    y err'
           DO i=1, ndata_set(k)
-             enc = USERFCN_SET(x(i,k),npar,live_max,funcname,k)
+             enc = USERFCN_SET(x(i,k),npar,live_max,funcid,k)
              IF (data_type.EQ.'1e') THEN
                 WRITE(30,*) x(i,k), ' ',nc(i,k), ' ',enc, ' ',nc(i,k)-enc, ' ',  nc_err(i,k)
              ELSE IF (data_type.EQ.'1c') THEN
@@ -651,7 +740,7 @@ CONTAINS
           OPEN (UNIT=30, FILE=out_filename, STATUS='unknown')
           WRITE(30,*)'# x    y data    y theory      y diff    y err'
           DO i=1, ndata_set(k)
-             enc = USERFCN_SET(x(i,k),npar,live_max,funcname,k)
+             enc = USERFCN_SET(x(i,k),npar,live_max,funcid,k)
              IF (data_type.EQ.'1e') THEN
                 WRITE(30,*) x(i,k), ' ',nc(i,k), ' ',enc, ' ',nc(i,k)-enc, ' ',  nc_err(i,k)
              ELSE IF (data_type.EQ.'1c') THEN
@@ -677,7 +766,7 @@ CONTAINS
        WRITE(40,*)'# x    y fit'
        DO i=1, maxfit
           xfit = minx + (i-1)*dx
-          yfit = USERFCN(xfit,npar,live_max,funcname)
+          yfit = USERFCN(xfit,npar,live_max,funcid)
        ENDDO
        CLOSE(40)
 
@@ -686,7 +775,7 @@ CONTAINS
        WRITE(40,*)'# x    y fit'
        DO i=1, maxfit
           xfit = minx + (i-1)*dx
-          yfit = USERFCN(xfit,npar,par_mean,funcname)
+          yfit = USERFCN(xfit,npar,par_mean,funcid)
        ENDDO
        CLOSE(40)
 
@@ -695,7 +784,7 @@ CONTAINS
        WRITE(40,*)'# x    y fit'
        DO i=1, maxfit
           xfit = minx + (i-1)*dx
-          yfit = USERFCN(xfit,npar,par_median_w,funcname)
+          yfit = USERFCN(xfit,npar,par_median_w,funcid)
        ENDDO
        CLOSE(40)
     ELSE
@@ -713,7 +802,7 @@ CONTAINS
           DO i=1, maxfit
              xfit = minx + (i-1)*dx
              !WRITE(30, *) xfit, USERFCN_SET(xfit,npar,live_max,funcname,k)
-             yfit = USERFCN_SET(xfit,npar,live_max,funcname,k)
+             yfit = USERFCN_SET(xfit,npar,live_max,funcid,k)
           ENDDO
           CLOSE(40)
 
@@ -723,7 +812,7 @@ CONTAINS
           DO i=1, maxfit
              xfit = minx + (i-1)*dx
              !WRITE(30, *) xfit, USERFCN_SET(xfit,npar,live_max,funcname,k)
-             yfit = USERFCN_SET(xfit,npar,par_mean,funcname,k)
+             yfit = USERFCN_SET(xfit,npar,par_mean,funcid,k)
           ENDDO
           CLOSE(40)
 
@@ -733,7 +822,7 @@ CONTAINS
           DO i=1, maxfit
              xfit = minx + (i-1)*dx
              !WRITE(30, *) xfit, USERFCN_SET(xfit,npar,live_max,funcname,k)
-             yfit = USERFCN_SET(xfit,npar,par_median_w,funcname,k)
+             yfit = USERFCN_SET(xfit,npar,par_median_w,funcid,k)
           ENDDO
           CLOSE(40)
        END DO
@@ -809,7 +898,7 @@ CONTAINS
                 IF (adata(i,j).GE.0) THEN
                    ! Poisson distribution calculation --------------------------------------------------
                    yy = j - 0.5 + ymin(k) ! additional -1 to take well into account xmin,ymin
-                   aenc(i,j) = USERFCN_2D(xx,yy,npar,live_max,funcname)
+                   aenc(i,j) = USERFCN_2D(xx,yy,npar,live_max,funcid)
                    ares(i,j) = adata(i,j) - aenc(i,j)
                    IF (INDEX(funcname,"_LINE").NE.0) THEN
                       ix = CEILING(xx - b*(yy-y0) - c*(yy-y0)**2 - xmin(k))
@@ -843,7 +932,7 @@ CONTAINS
              WRITE(40,*)'# x    y fit'
              DO i=1, maxfit
                 xfit = minx + (i-1)*dx
-                yfit = Dy*USERFCN_2D(xfit,y0,npar,live_max,funcname)
+                yfit = Dy*USERFCN_2D(xfit,y0,npar,live_max,funcid)
                 WRITE(40,*) xfit, yfit
              ENDDO
              CLOSE(40)

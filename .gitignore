@@ -1,6 +1,19 @@
+# Mac stuff
 **/.DS_Store
 .DS_Store
+
+# Build files and objects
 *.o
 *.mod
+build/
+bin/
+
+# vscode settings
+.vscode/
+
+# tests / manual run output files
 nf_output_*
-*.exe
+tests/*/nf_input.dat
+
+# Python cache files
+__pycache__/
