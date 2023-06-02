@@ -369,8 +369,8 @@ c     Simulation variables
       CHARACTER*64 fileinterpname_1
       CHARACTER*64 interpolated_1, funcname
 c     Interpolation subroutine variables
-      INTEGER*4 k, nest, nn_1, n,i, j, npoints
-      REAL*8  s_1, ier_1, y_1
+      INTEGER*4 k, nest, nn_1, n,i, j, npoints, ier_1
+      REAL*8  s_1, y_1
       REAL*8 val(8),LORE,x, USERFCN
       PARAMETER (nest=1000,n=400, npoints=500)
 c     s_s=90,s_p=60
