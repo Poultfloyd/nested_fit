@@ -180,6 +180,24 @@ c################################### USERFCN DEFINITION ########################
             SELECT_USERFCN = 85
       ELSE IF(funcname.EQ.'POWER_CONST') THEN
             SELECT_USERFCN = 86
+      ELSE IF(funcname.EQ.'DCS_EIGHT_VOIGT_POLYBG_X0') THEN 
+            SELECT_USERFCN = 87
+      ELSE IF(funcname.EQ.'MULTIPLE_VOIGT_POLY_X0') THEN 
+            SELECT_USERFCN = 88
+      ELSE IF(funcname.EQ.'DCS_MULTIPLE_VOIGT_POLY_X0_N') THEN 
+            SELECT_USERFCN = 89
+      ELSE IF(funcname.EQ.'INTERP_CONVO_POLY_X0') THEN 
+            SELECT_USERFCN = 90
+      ELSE IF(funcname.EQ.'INTERP_TWO_VOIGT_POLY_X0') THEN 
+            SELECT_USERFCN = 91
+      ELSE IF(funcname.EQ.'INTERP_THREE_VOIGT_POLY_X0') THEN 
+            SELECT_USERFCN = 92
+      ELSE IF(funcname.EQ.'TWO_INTERP_TWO_VOIGT_POLY_X0') THEN 
+            SELECT_USERFCN = 93
+      ELSE IF(funcname.EQ.'FOUR_INTERP_VOIGT_POLY_X0') THEN
+            SELECT_USERFCN = 94
+      ELSE IF(funcname.EQ.'INTERP_POLY_X0') THEN
+            SELECT_USERFCN = 95
       ELSE
             WRITE(*,*) 'Error in the function name def. in USERFCN'
             WRITE(*,*) 'Check in the manual and in the input.dat file'
@@ -337,10 +355,6 @@ c     Choose your model (see below for definition)
             USERFCN = TWO_INTERP_VOIGT_POLY(x,npar,val)
       CASE (45)
             USERFCN = TWO_INTERP_VOIGT_POLY_X0(x,npar,val)
-      ELSE IF(funcname.EQ.'FOUR_INTERP_VOIGT_POLY_X0') THEN
-         USERFCN =FOUR_INTERP_VOIGT_POLY_X0(x,npar,val)
-      ELSE IF(funcname.EQ.'INTERP_POLY_X0') THEN
-            USERFCN =INTERP_POLY_X0(x,npar,val)
       CASE (46)
             USERFCN = THREE_INTERP_VOIGT_POLY(x,npar,val)
       CASE (47)
@@ -421,22 +435,26 @@ c     Choose your model (see below for definition)
             USERFCN = ROCKING_CURVE(x,npar,val)
       CASE (85)
             USERFCN = SIX_VOIGT_PARA_POLY_SIG_PLEIADES(x,npar,val)
-      ELSE IF(funcname.EQ.'DCS_EIGHT_VOIGT_POLYBG_X0') THEN 
-            USERFCN= DCS_EIGHT_VOIGT_POLYBG_X0(x,npar,val)
-      ELSE IF(funcname.EQ.'MULTIPLE_VOIGT_POLY_X0') THEN 
-            USERFCN= MULTIPLE_VOIGT_POLY_X0(x,npar,val)
-      ELSE IF(funcname.EQ.'DCS_MULTIPLE_VOIGT_POLY_X0_N') THEN 
-            USERFCN= DCS_MULTIPLE_VOIGT_POLY_X0_N(x,npar,val)
-      ELSE IF(funcname.EQ.'INTERP_CONVO_POLY_X0') THEN 
-            USERFCN= INTERP_CONVO_POLY_X0(x,npar,val)
-      ELSE IF(funcname.EQ.'INTERP_TWO_VOIGT_POLY_X0') THEN 
-            USERFCN= INTERP_TWO_VOIGT_POLY_X0(x,npar,val)
-      ELSE IF(funcname.EQ.'INTERP_THREE_VOIGT_POLY_X0') THEN 
-            USERFCN= INTERP_THREE_VOIGT_POLY_X0(x,npar,val)
-      ELSE IF(funcname.EQ.'TWO_INTERP_TWO_VOIGT_POLY_X0') THEN 
-            USERFCN= TWO_INTERP_TWO_VOIGT_POLY_X0(x,npar,val)
       CASE (86)
             USERFCN = POWER_CONST(x, npar, val)
+      CASE (87)
+            USERFCN= DCS_EIGHT_VOIGT_POLYBG_X0(x,npar,val)
+      CASE (88)
+            USERFCN= MULTIPLE_VOIGT_POLY_X0(x,npar,val)
+      CASE (89)
+            USERFCN= DCS_MULTIPLE_VOIGT_POLY_X0_N(x,npar,val)
+      CASE (90)
+            USERFCN= INTERP_CONVO_POLY_X0(x,npar,val)
+      CASE (91)
+            USERFCN= INTERP_TWO_VOIGT_POLY_X0(x,npar,val)
+      CASE (92)
+            USERFCN= INTERP_THREE_VOIGT_POLY_X0(x,npar,val)
+      CASE (93)
+            USERFCN= TWO_INTERP_TWO_VOIGT_POLY_X0(x,npar,val)
+      CASE (94)
+         USERFCN =FOUR_INTERP_VOIGT_POLY_X0(x,npar,val)
+      CASE (95)
+            USERFCN =INTERP_POLY_X0(x,npar,val)
       END SELECT
 
       RETURN
@@ -6720,12 +6738,12 @@ c            valv((i-1)*4:4*i)= valtemp
       END DO
       
       IF(plot) THEN
-            WRITE(40,'(F)',ADVANCE='NO') x
-            WRITE(40,'(F)',ADVANCE='NO') MULTIPLE_VOIGT_POLY_X0
+            WRITE(40,'(ES14.5)',ADVANCE='NO') x
+            WRITE(40,'(ES14.5 )',ADVANCE='NO') MULTIPLE_VOIGT_POLY_X0
             DO i=1,nvoigt
-                  WRITE(40,'(F)',ADVANCE='NO') valvoigts(i)
+                  WRITE(40,'(ES14.5)' ,ADVANCE='NO') valvoigts(i)
             END DO
-            WRITE(40,'(F)') POLY(x-xp,8,valp)
+            WRITE(40,'(ES14.5)' ) POLY(x-xp,8,valp)
       ENDIF
 
 
@@ -6895,14 +6913,14 @@ c     second neighbour peak
      + VOIGT(x,4,valv1) + VOIGT(x,4,valv2)
 
       IF(plot) THEN
-            WRITE(40,'(F)',ADVANCE='NO') x
-      WRITE(40,'(F)',ADVANCE='NO') DCS_MULTIPLE_VOIGT_POLY_X0_N
+            WRITE(40,'(ES14.5)' ,ADVANCE='NO') x
+      WRITE(40,'(ES14.5)' ,ADVANCE='NO') DCS_MULTIPLE_VOIGT_POLY_X0_N
             DO i=1,nvoigt
-                  WRITE(40,'(F)',ADVANCE='NO') valvoigts(i)
+                  WRITE(40,'(ES14.5)' ,ADVANCE='NO') valvoigts(i)
             END DO
-            WRITE(40,'(F)',ADVANCE='NO') VOIGT(x,4,valv1)
-            WRITE(40,'(F)',ADVANCE='NO') VOIGT(x,4,valv2)
-            WRITE(40,'(F)') POLY(x-xp,8,valp)
+            WRITE(40,'(ES14.5)' ,ADVANCE='NO') VOIGT(x,4,valv1)
+            WRITE(40,'(ES14.5)' ,ADVANCE='NO') VOIGT(x,4,valv2)
+            WRITE(40,'(ES14.5)' ) POLY(x-xp,8,valp)
       ENDIF
 
 

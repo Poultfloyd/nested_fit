@@ -43,6 +43,7 @@ set(SRC_FILES_COMM
     
     src/dlog_fac.f90
     src/meanvar.f90
+    src/gauleg.f90
     src/init_interpolation.f
 
     src/nested_fit.f90
@@ -115,10 +116,10 @@ set(CFG_FILES
 # TODO(César): This assumes we are using gfortran!
 if(DEBUG)
     message(STATUS "Configuring for Debug")
-    set(SRC_FLAGS "-cpp -O0 -Wall -g -ffree-line-length-0")
+    set(SRC_FLAGS "-cpp -O0 -Wall -g -fallow-argument-mismatch -ffree-line-length-0")
 else()
     message(STATUS "Configuring for Release")
-    set(SRC_FLAGS "-cpp -O2 -static -ffree-line-length-0")
+    set(SRC_FLAGS "-cpp -O2 -static -fallow-argument-mismatch -ffree-line-length-0")
 endif()
 
 # NOTE(César): This is required to preprocessor the OpenMP comments
@@ -195,7 +196,7 @@ if(WIN32)
     message(WARNING "--- Future fix ---")
     message(WARNING "Windows builds do not support MPI.")
 else()
-    # Install would work well here but lets keep the same copy-after-build scheme of the original makefile
+    # Install would work well here but   lets keep the same copy-after-build scheme of the original makefile
     # TODO(César): Maybe use install later on
     add_custom_command(TARGET ${nested_fit_target} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${nested_fit_target}> $ENV{HOME}/bin)

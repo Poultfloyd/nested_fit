@@ -45,6 +45,8 @@ c     Choose your model (see below for definition)
             SELECT_USERFCN_SET = 16
       ELSE IF(funcname.EQ.'ROCKING_CURVE_SET') THEN
             SELECT_USERFCN_SET = 17
+      ELSE IF(funcname.EQ.'DCS_EIGHT_VOIGT_POLYBG_X0_SET') THEN
+            SELECT_USERFCN_SET = 18
       ELSE
          WRITE(*,*) 'Selected function:', funcname
          WRITE(*,*) 'Error in the function name def. in USERFCN_SET'
@@ -57,7 +59,7 @@ c     Choose your model (see below for definition)
 
       FUNCTION USERFCN_SET(x,npar,val,funcid,j)
       IMPLICIT NONE
-      INTEGER*4 npar, j
+      INTEGER*4 npar, j,funcid
       REAL*8 val(npar)
       REAL*8 x, USERFCN_SET, WEIBULL_EL_LASER, GAUSS_BG_SET
       REAL*8 DOUBLE_EXPSIN, DOUBLE_EXPSIN_BIS, DOUBLE_EXPSIMP
@@ -115,12 +117,10 @@ c     Choose your model (see below for definition)
          USERFCN_SET = FOUR_GAUSS_ERF_TWO_GAUSS_STAN3_SET(x,npar,val,j)
       CASE(17)
          USERFCN_SET = ROCKING_CURVE_SET(x,npar,val,j)
-      ELSE
-         WRITE(*,*) 'Selected function:', funcname
-         WRITE(*,*) 'Error in the function name def. in USERFCN_SET'
-         WRITE(*,*) 'Check in the manual and in the input.dat file'
+      CASE(18)
+         USERFCN_SET = ROCKING_CURVE_SET(x,npar,val,j)
          STOP
-      END IF
+      END SELECT
 
       RETURN
       END
