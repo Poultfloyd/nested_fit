@@ -61,6 +61,7 @@ src/Mod_cluster_analysis.f90
     src/dlog_fac.f90
     src/meanvar.f90
     src/gauleg.f90
+    src/gauleg.f90
     src/init_interpolation.f
 
     src/nested_fit.f90
@@ -141,13 +142,10 @@ set(CFG_FILES
 # TODO(César): This assumes we are using gfortran!
 if(DEBUG)
     message(STATUS "Configuring for Debug")
-    set(SRC_FLAGS "-cpp -O0 -Wall -g -pg -ffree-line-length-0")
+    set(SRC_FLAGS "-cpp -O0 -Wall -g -fallow-argument-mismatch -ffree-line-length-0")
 else()
     message(STATUS "Configuring for Release")
-    # set(SRC_FLAGS "-cpp -O2 -static -fallow-argument-mismatch -ffree-line-length-0")
-    set(SRC_FLAGS "-cpp -static -ffree-line-length-0 -O3 ")
-    # set(SRC_FLAGS "-cpp -g -static -traceback -heap-arrays -O0 -xHost -qopt-zmm-usage=high -fp-model precise")
-    # set(SRC_FLAGS "-cpp -g -static -traceback -heap-arrays -O5 -xHost  -fast ")
+    set(SRC_FLAGS "-cpp -O2 -static -fallow-argument-mismatch -ffree-line-length-0")
 endif()
 
 # NOTE(César): This is required to preprocessor the OpenMP comments

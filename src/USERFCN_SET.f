@@ -46,10 +46,6 @@ c     Choose your model (see below for definition)
             SELECT_USERFCN_SET = 17
       ELSE IF(funcname.EQ.'DCS_EIGHT_VOIGT_POLYBG_X0_SET') THEN
             SELECT_USERFCN_SET = 18
-      ELSE IF(funcname.EQ.'DCS_EIGHT_VOIGT_SET_NEIGHBOUR') THEN
-            SELECT_USERFCN_SET = 19
-      ELSE IF(funcname.EQ.'TWO_INTERP_THREE_VOIGT_POLY') THEN
-            SELECT_USERFCN_SET = 20
       ELSE
          WRITE(*,*) 'Selected function:', funcname
          WRITE(*,*) 'Error in the function name def. in USERFCN_SET'
@@ -121,15 +117,9 @@ c     Choose your model (see below for definition)
       CASE(17)
          USERFCN_SET = ROCKING_CURVE_SET(x,npar,val,j)
       CASE(18)
-         USERFCN_SET = DCS_EIGHT_VOIGT_POLYBG_X0_SET(x,npar,val,j)
-      ELSE IF(funcname.EQ.'MULTIPLE_VOIGT_SET') THEN
-            USERFCN_SET = MULTIPLE_VOIGT_SET(x,npar,val,j)
-      ELSE
-         WRITE(*,*) 'Selected function:', funcname
-         WRITE(*,*) 'Error in the function name def. in USERFCN_SET'
-         WRITE(*,*) 'Check in the manual and in the input.dat file'
+         USERFCN_SET = ROCKING_CURVE_SET(x,npar,val,j)
          STOP
-      END IF
+      END SELECT
 
       RETURN
       END
