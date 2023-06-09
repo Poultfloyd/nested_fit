@@ -14,10 +14,12 @@ set(project_version 4.4.3)
 # Global options
 option(DEBUG "Enable debug mode." OFF)
 option(NORNG "Uses the same set seed. Useful for testing." OFF)
-option(OPENMP "Enable/Disable OpenMP." OFF)
+option(OPENMP "Enable/Disable OpenMP." ON)
 option(OPENMPI "Enable/Disable OpenMPI." OFF)
 option(AUTOTESTS "Automatically run tests after compiling." OFF)
 
+
+# set(CMAKE_Fortran_COMPILER ifort)
 #####################################
 #####################################
 
@@ -41,6 +43,7 @@ set(SRC_FILES_COMM
     src/Mod_search_new_point.f90
     src/Mod_timestamp.f90
     
+    src/gauleg.f90
     src/dlog_fac.f90
     src/meanvar.f90
     src/gauleg.f90
@@ -120,6 +123,8 @@ if(DEBUG)
 else()
     message(STATUS "Configuring for Release")
     set(SRC_FLAGS "-cpp -O2 -static -fallow-argument-mismatch -ffree-line-length-0")
+    # set(SRC_FLAGS "-cpp -g -static -traceback -heap-arrays -O3 -xHost -qopt-zmm-usage=high -fp-model precise")
+    # set(SRC_FLAGS "-cpp -g -static -traceback -heap-arrays -O5 -xHost  -fast ")
 endif()
 
 # NOTE(César): This is required to preprocessor the OpenMP comments
