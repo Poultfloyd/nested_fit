@@ -437,6 +437,8 @@ CONTAINS
           CALL INIT_SHIRLEY(ndata,x(:,1),nc(:,1))
        ELSE IF(funcname.EQ.'INTERP_CONVO_POLY_X0') THEN
           CALL INIT_INTERP_CONVO(par_in(8))
+       ELSE IF(funcname.EQ.'TWO_INTERP_THREE_VOIGT_POLY') THEN 
+          CALL INIT_TWO_INTERP(par_in(67),par_in(68))
        END IF
     ELSE IF(funcname.EQ.'ROCKING_CURVE_SET') THEN
           ! Passing as argument the smoothing factors to be adjusted case by case
