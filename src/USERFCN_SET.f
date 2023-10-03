@@ -1,7 +1,6 @@
 c     Automatic Time-stamp: <Last changed by martino on Tuesday 02 April 2019 at CEST 17:19:46>
 c################################### USERFCN DEFINITION #####################################
 
-
       FUNCTION SELECT_USERFCN_SET(funcname)
       IMPLICIT NONE
       CHARACTER*64 funcname
@@ -47,13 +46,16 @@ c     Choose your model (see below for definition)
             SELECT_USERFCN_SET = 17
       ELSE IF(funcname.EQ.'DCS_EIGHT_VOIGT_POLYBG_X0_SET') THEN
             SELECT_USERFCN_SET = 18
+      ELSE IF(funcname.EQ.'DCS_EIGHT_VOIGT_SET_NEIGHBOUR') THEN
+            SELECT_USERFCN_SET = 19
+      ELSE IF(funcname.EQ.'TWO_INTERP_THREE_VOIGT_POLY') THEN
+            SELECT_USERFCN_SET = 20
       ELSE
          WRITE(*,*) 'Selected function:', funcname
          WRITE(*,*) 'Error in the function name def. in USERFCN_SET'
          WRITE(*,*) 'Check in the manual and in the input.dat file'
          STOP
       END IF
-
       RETURN
       END
 
@@ -76,8 +78,9 @@ c     Choose your model (see below for definition)
       REAL*8 ROCKING_CURVE_SET
       INTEGER*4 funcid
       REAL*8 DCS_EIGHT_VOIGT_POLYBG_X0_SET
+      REAL*8 DCS_EIGHT_VOIGT_SET_NEIGHBOUR
       REAL*8 MULTIPLE_VOIGT_SET
-      CHARACTER*64 funcname
+      REAL*8 TWO_INTERP_THREE_VOIGT_POLY
 
  
 c     Choose your model (see below for definition)
@@ -118,8 +121,14 @@ c     Choose your model (see below for definition)
          USERFCN_SET = FOUR_GAUSS_ERF_TWO_GAUSS_STAN3_SET(x,npar,val,j)
       CASE(17)
          USERFCN_SET = ROCKING_CURVE_SET(x,npar,val,j)
+      CASE(18)
+         USERFCN_SET = DCS_EIGHT_VOIGT_POLYBG_X0_SET(x,npar,val,j)
+      CASE(19)
+         USERFCN_SET = DCS_EIGHT_VOIGT_SET_NEIGHBOUR(x,npar,val,j)
+      CASE(20)
+            USERFCN_SET = TWO_INTERP_THREE_VOIGT_POLY(x,npar,val,j)
+      
       END SELECT
-
       RETURN
       END
 
@@ -3179,7 +3188,7 @@ c     Rocking curve with s and p polarization extracted from simulations
       INTEGER*4 npar, j
       REAL*8 val(npar)
       REAL*8 ROCKING_CURVE_SET, x, y_s_par, y_p_par,  y_s_apar, y_p_apar
-      REAL*8 amp_par, amp_apar, damp_sp, x0_s_par, dx0_p_par, x0_s_apar
+      REAL*8 amp_par, amp_apar, damp_sp, x0_s_par, x0_s_apar
       REAL*8 dx0_sp, bg_par, bg_apar
 c     Interpolation variables
       INTEGER*4 k, nn_s_par, nn_p_par, nn_s_apar, nn_p_apar
@@ -3283,7 +3292,7 @@ c     The value of 'amp' is the value of the surface below the curve
       REAL*8 valv7_6(4), valv7_7(4), valv7_8(4), valv7_9(4)
       REAL*8 valv8_1(4), valv8_2(4), valv8_3(4), valv8_4(4), valv8_5(4)  
       REAL*8 valv8_6(4), valv8_7(4), valv8_8(4), valv8_9(4)
-      REAL*8 DCS_EIGHT_VOIGT_POLYBG_X0_SET, VOIGT, POLY, x
+      REAL*8 DCS_EIGHT_VOIGT_POLYBG_X0_SET, VOIGT, x
       REAL*8 pi
       PARAMETER(pi=3.141592653589793d0)
       REAL*8 dx1, dx2, dx4, dx5, dx6, dx7, dx8
@@ -3875,3 +3884,1178 @@ c     Save the different components
       RETURN
       END
 
+      FUNCTION DCS_EIGHT_VOIGT_SET_NEIGHBOUR(X,npar,val,j) 
+c     8 Normalized Voigt distribution plus exponential background
+c     The value of 'amp' is the value of the surface below the curve
+      IMPLICIT NONE
+      INTEGER*4 npar,j
+      REAL*8 val(npar)
+      REAL*8 valv1_1(4), valv1_2(4), valv1_3(4), valv1_4(4), valv1_5(4)  
+      REAL*8 valv1_6(4), valv1_7(4), valv1_8(4), valv1_9(4)
+      REAL*8 valv2_1(4), valv2_2(4), valv2_3(4), valv2_4(4), valv2_5(4)  
+      REAL*8 valv2_6(4), valv2_7(4), valv2_8(4), valv2_9(4)
+      REAL*8 valv3_1(4), valv3_2(4), valv3_3(4), valv3_4(4), valv3_5(4)  
+      REAL*8 valv3_6(4), valv3_7(4), valv3_8(4), valv3_9(4)
+      REAL*8 valv4_1(4), valv4_2(4), valv4_3(4), valv4_4(4), valv4_5(4)  
+      REAL*8 valv4_6(4), valv4_7(4), valv4_8(4), valv4_9(4)
+      REAL*8 valv5_1(4), valv5_2(4), valv5_3(4), valv5_4(4), valv5_5(4)  
+      REAL*8 valv5_6(4), valv5_7(4), valv5_8(4), valv5_9(4)
+      REAL*8 valv6_1(4), valv6_2(4), valv6_3(4), valv6_4(4), valv6_5(4)  
+      REAL*8 valv6_6(4), valv6_7(4), valv6_8(4), valv6_9(4)
+      REAL*8 valv7_1(4), valv7_2(4), valv7_3(4), valv7_4(4), valv7_5(4)  
+      REAL*8 valv7_6(4), valv7_7(4), valv7_8(4), valv7_9(4)
+      REAL*8 valv8_1(4), valv8_2(4), valv8_3(4), valv8_4(4), valv8_5(4)
+      REAL*8 valv8_6(4), valv8_7(4), valv8_8(4), valv8_9(4)
+      REAL*8 valvn1_1(4), valvn1_2(4), valvn1_3(4), valvn1_4(4)
+      REAL*8 valvn1_5(4)
+      REAL*8 valvn1_6(4), valvn1_7(4), valvn1_8(4), valvn1_9(4)
+      REAL*8 valvn2_1(4), valvn2_2(4), valvn2_3(4), valvn2_4(4) 
+      REAL*8 valvn2_5(4)
+      REAL*8 valvn2_6(4), valvn2_7(4), valvn2_8(4), valvn2_9(4)
+
+
+
+      REAL*8 DCS_EIGHT_VOIGT_SET_NEIGHBOUR, VOIGT, x
+      REAL*8 pi
+      PARAMETER(pi=3.141592653589793d0)
+      REAL*8 dx3, dx2, dx4, dx5, dx6, dx7, dx8
+      REAL*8 x1_1, x1_2, x1_3, x1_4, x1_5, x1_6, x1_7, x1_8, x1_9
+      REAL*8 damp3, damp2, damp4, damp5, damp6, damp7, damp8
+      REAL*8 amp1_1,amp1_2,amp1_3, amp1_4, amp1_5, amp1_6
+      REAL*8 amp1_7, amp1_8, amp1_9
+      REAL*8 sigma
+      REAL*8 gamma1,gamma2,gamma3,gamma4,gamma5,gamma6,gamma7,gamma8
+      REAL*8 a_1, a_2, a_3, a_4, a_5, a_6, a_7, a_8, a_9
+      REAL*8 b_1, b_2, b_3, b_4, b_5, b_6, b_7, b_8, b_9
+
+      REAL*8 xn1_1, xn1_2, xn1_3, xn1_4, xn1_5, xn1_6, xn1_7, xn1_8
+      REAL*8 xn2_1, xn2_2, xn2_3, xn2_4, xn2_5, xn2_6, xn2_7, xn2_8
+      REAL*8 xn1_9, xn2_9
+      REAL*8 ampn1_1, ampn1_2, ampn1_3, ampn1_4, ampn1_5, ampn1_6
+      REAL*8 ampn1_7, ampn1_8, ampn1_9
+      REAL*8 ampn2_1, ampn2_2, ampn2_3, ampn2_4, ampn2_5, ampn2_6
+      REAL*8 ampn2_7, ampn2_8, ampn2_9
+      REAL*8 sigman1_1, sigman1_2, sigman1_3, sigman1_4,sigman1_5
+      REAL*8 sigman1_6, sigman1_7, sigman1_8, sigman1_9
+      REAL*8 sigman2_1, sigman2_2, sigman2_3, sigman2_4,sigman2_5
+      REAL*8 sigman2_6, sigman2_7, sigman2_8, sigman2_9
+      REAL*8 gamman1_1, gamman1_2, gamman1_3, gamman1_4,gamman1_5
+      REAL*8 gamman1_6, gamman1_7, gamman1_8, gamman1_9
+      REAL*8 gamman2_1, gamman2_2, gamman2_3, gamman2_4,gamman2_5
+      REAL*8 gamman2_6, gamman2_7, gamman2_8, gamman2_9
+
+      CHARACTER*1 lr
+      COMMON /func_exp/ lr
+      ! To plot the different components
+      LOGICAL plot
+      COMMON /func_plot/ plot
+
+c Parameter initialisation      
+      x1_1   = val(1)
+      x1_2   = val(2)
+      x1_3   = val(3)
+      x1_4   = val(4)
+      x1_5   = val(5)
+      x1_6   = val(6)
+      x1_7   = val(7)
+      x1_8   = val(8)
+      x1_9   = val(9)
+      dx2    = val(10)
+      dx3    = val(11)
+      dx4    = val(12)
+      dx5    = val(13)
+      dx6    = val(14)
+      dx7    = val(15)
+      dx8    = val(16)
+      sigma  = val(17)
+      amp1_1 = val(18) 
+      amp1_2 = val(19)
+      amp1_3 = val(20)
+      amp1_4 = val(21)
+      amp1_5 = val(22)
+      amp1_6 = val(23)
+      amp1_7 = val(24)
+      amp1_8 = val(25)
+      amp1_9 = val(26)
+      damp2  = val(27)
+      damp3  = val(28)
+      damp4  = val(29)
+      damp5  = val(30)
+      damp6  = val(31)
+      damp7  = val(32)
+      damp8  = val(33)
+      gamma1 = val(34)
+      gamma2 = val(35)
+      gamma3 = val(36)
+      gamma4 = val(37)
+      gamma5 = val(38)
+      gamma6 = val(39)
+      gamma7 = val(40)
+      gamma8 = val(41)
+      a_1 = val(42)
+      a_2 = val(43)
+      a_3 = val(44)
+      a_4 = val(45)
+      a_5 = val(46)
+      a_6 = val(47)
+      a_7 = val(48)
+      a_8 = val(49)
+      a_9 = val(50)
+      b_1 = val(51)
+      b_2 = val(52)
+      b_3 = val(53)
+      b_4 = val(54)
+      b_5 = val(55)
+      b_6 = val(56)
+      b_7 = val(57)
+      b_8 = val(58)
+      b_9 = val(59)
+      xn1_1 = val(60)
+      xn1_2 = val(61)
+      xn1_3 = val(62)
+      xn1_4 = val(63)
+      xn1_5 = val(64)
+      xn1_6 = val(65)
+      xn1_7 = val(66)
+      xn1_8 = val(67)
+      xn1_9 = val(68)
+      ampn1_1 = val(69)        
+      ampn1_2 = val(70)
+      ampn1_3 = val(71)
+      ampn1_4 = val(72)
+      ampn1_5 = val(73)
+      ampn1_6 = val(74)
+      ampn1_7 = val(75)
+      ampn1_8 = val(76)
+      ampn1_9 = val(77)
+      sigman1_1 = val(78)
+      sigman1_2 = val(79)
+      sigman1_3 = val(80)
+      sigman1_4 = val(81)
+      sigman1_5 = val(82)
+      sigman1_6 = val(83)
+      sigman1_7 = val(84)
+      sigman1_8 = val(85)
+      sigman1_9 = val(86)
+      gamman1_1 = val(87)
+      gamman1_2 = val(88)
+      gamman1_3 = val(89)
+      gamman1_4 = val(90)
+      gamman1_5 = val(91)
+      gamman1_6 = val(92)
+      gamman1_7 = val(93)
+      gamman1_8 = val(94)
+      gamman1_9 = val(95)
+      xn2_1 = val(96)
+      xn2_2 = val(97)
+      xn2_3 = val(98)
+      xn2_4 = val(99)
+      xn2_5 = val(100)
+      xn2_6 = val(101)
+      xn2_7 = val(102)
+      xn2_8 = val(103)
+      xn2_9 = val(104)
+      ampn2_1 = val(105)        
+      ampn2_2 = val(106)
+      ampn2_3 = val(107)
+      ampn2_4 = val(108)
+      ampn2_5 = val(109)
+      ampn2_6 = val(110)
+      ampn2_7 = val(111)
+      ampn2_8 = val(112)
+      ampn2_9 = val(113)
+      sigman2_1 = val(114)
+      sigman2_2 = val(115)
+      sigman2_3 = val(116)
+      sigman2_4 = val(117)
+      sigman2_5 = val(118)
+      sigman2_6 = val(119)
+      sigman2_7 = val(120)
+      sigman2_8 = val(121)
+      sigman2_9 = val(122)
+      gamman2_1 = val(123)
+      gamman2_2 = val(124)
+      gamman2_3 = val(125)
+      gamman2_4 = val(126)
+      gamman2_5 = val(127)
+      gamman2_6 = val(128)
+      gamman2_7 = val(129)
+      gamman2_8 = val(130)
+      gamman2_9 = val(131)
+
+      valv1_1(1) = x1_1
+      valv1_1(2) = amp1_1
+      valv1_1(3) = sigma
+      valv1_1(4) = gamma1
+
+      valv2_1(1) = x1_1+dx2
+      valv2_1(2) = damp2*amp1_1
+      valv2_1(3) = sigma
+      valv2_1(4) = gamma2
+
+      valv3_1(1) = x1_1+dx3
+      valv3_1(2) = amp1_1*damp3
+      valv3_1(3) = sigma
+      valv3_1(4) = gamma3
+
+      valv4_1(1) = x1_1+dx4
+      valv4_1(2) = damp4*amp1_1
+      valv4_1(3) = sigma
+      valv4_1(4) = gamma4
+
+      valv5_1(1) = x1_1+dx5
+      valv5_1(2) = damp5*amp1_1
+      valv5_1(3) = sigma
+      valv5_1(4) = gamma5
+
+      valv6_1(1) = x1_1+dx6
+      valv6_1(2) = damp6*amp1_1
+      valv6_1(3) = sigma
+      valv6_1(4) = gamma6
+
+
+      valv7_1(1) = x1_1+dx7
+      valv7_1(2) = damp7*amp1_1
+      valv7_1(3) = sigma
+      valv7_1(4) = gamma7
+
+      valv8_1(1) = x1_1+dx8
+      valv8_1(2) = damp8*amp1_1
+      valv8_1(3) = sigma
+      valv8_1(4) = gamma8
+
+      valvn1_1(1)= xn1_1
+      valvn1_1(2)= ampn1_1
+      valvn1_1(3)= sigman1_1
+      valvn1_1(4)= gamman1_1
+
+      valvn2_1(1)= xn2_1
+      valvn2_1(2)= ampn2_1
+      valvn2_1(3)= sigman2_1
+      valvn2_1(4)= gamman2_1
+
+      valv1_2(1) = x1_2
+      valv1_2(2) = amp1_2
+      valv1_2(3) = sigma
+      valv1_2(4) = gamma1
+
+      valv2_2(1) = x1_2+dx2
+      valv2_2(2) = damp2*amp1_2
+      valv2_2(3) = sigma
+      valv2_2(4) = gamma2
+
+      valv3_2(1) = x1_2+dx3
+      valv3_2(2) = amp1_2*damp3
+      valv3_2(3) = sigma
+      valv3_2(4) = gamma3
+
+      valv4_2(1) = x1_2+dx4
+      valv4_2(2) = damp4*amp1_2
+      valv4_2(3) = sigma
+      valv4_2(4) = gamma4
+
+      valv5_2(1) = x1_2+dx5
+      valv5_2(2) = damp5*amp1_2
+      valv5_2(3) = sigma
+      valv5_2(4) = gamma5   
+
+
+      valv6_2(1) = x1_2+dx6
+      valv6_2(2) = damp6*amp1_2
+      valv6_2(3) = sigma
+      valv6_2(4) = gamma6
+
+      valv7_2(1) = x1_2+dx7
+      valv7_2(2) = damp7*amp1_2
+      valv7_2(3) = sigma
+      valv7_2(4) = gamma7
+
+
+      valv8_2(1) = x1_2+dx8
+      valv8_2(2) = damp8*amp1_2
+      valv8_2(3) = sigma
+      valv8_2(4) = gamma8
+
+      valvn1_2(1)= xn1_2
+      valvn1_2(2)= ampn1_2
+      valvn1_2(3)= sigman1_2
+      valvn1_2(4)= gamman1_2
+
+      valvn2_2(1)= xn2_2
+      valvn2_2(2)= ampn2_2
+      valvn2_2(3)= sigman2_2
+      valvn2_2(4)= gamman2_2
+
+      valv1_3(1) = x1_3
+      valv1_3(2) = amp1_3
+      valv1_3(3) = sigma
+      valv1_3(4) = gamma1
+
+      valv2_3(1) = x1_3+dx2
+      valv2_3(2) = damp2*amp1_3
+      valv2_3(3) = sigma
+      valv2_3(4) = gamma2
+
+      valv3_3(1) = x1_3+dx3
+      valv3_3(2) = amp1_3*damp3
+      valv3_3(3) = sigma
+      valv3_3(4) = gamma3
+
+      valv4_3(1) = x1_3+dx4
+      valv4_3(2) = damp4*amp1_3
+      valv4_3(3) = sigma
+      valv4_3(4) = gamma4
+
+      valv5_3(1) = x1_3+dx5
+      valv5_3(2) = damp5*amp1_3
+      valv5_3(3) = sigma
+      valv5_3(4) = gamma5
+
+      valv6_3(1) = x1_3+dx6
+      valv6_3(2) = damp6*amp1_3
+      valv6_3(3) = sigma
+      valv6_3(4) = gamma6
+
+      valv7_3(1) = x1_3+dx7
+      valv7_3(2) = damp7*amp1_3
+      valv7_3(3) = sigma
+      valv7_3(4) = gamma7
+
+      valv8_3(1) = x1_3+dx8
+      valv8_3(2) = damp8*amp1_3
+      valv8_3(3) = sigma
+      valv8_3(4) = gamma8
+
+      valvn1_3(1)= xn1_1
+      valvn1_3(2)= ampn1_3
+      valvn1_3(3)= sigman1_3
+      valvn1_3(4)= gamman1_3
+
+      valvn2_3(1)= xn2_1
+      valvn2_3(2)= ampn2_3
+      valvn2_3(3)= sigman2_3
+      valvn2_3(4)= gamman2_3
+
+
+      valv1_4(1) = x1_4
+      valv1_4(2) = amp1_4
+      valv1_4(3) = sigma
+      valv1_4(4) = gamma1
+
+
+      valv2_4(1) = x1_4+dx2
+      valv2_4(2) = damp2*amp1_4
+      valv2_4(3) = sigma
+      valv2_4(4) = gamma2
+
+      valv3_4(1) = x1_4+dx3
+      valv3_4(2) = amp1_4*damp3
+      valv3_4(3) = sigma
+      valv3_4(4) = gamma3
+
+
+      valv4_4(1) = x1_4+dx4
+      valv4_4(2) = damp4*amp1_4
+      valv4_4(3) = sigma
+      valv4_4(4) = gamma4
+
+
+      valv5_4(1) = x1_4+dx5
+      valv5_4(2) = damp5*amp1_4
+      valv5_4(3) = sigma
+      valv5_4(4) = gamma5
+
+      valv6_4(1) = x1_4+dx6
+      valv6_4(2) = damp6*amp1_4
+      valv6_4(3) = sigma
+      valv6_4(4) = gamma6
+
+
+      valv7_4(1) = x1_4+dx7
+      valv7_4(2) = damp7*amp1_4
+      valv7_4(3) = sigma
+      valv7_4(4) = gamma7
+
+
+      valv8_4(1) = x1_4+dx8
+      valv8_4(2) = damp8*amp1_4
+      valv8_4(3) = sigma
+      valv8_4(4) = gamma8
+
+
+      valvn1_4(1)= xn1_1
+      valvn1_4(2)= ampn1_4
+      valvn1_4(3)= sigman1_4
+      valvn1_4(4)= gamman1_4
+
+
+      valvn2_4(1)= xn2_1
+      valvn2_4(2)= ampn2_4
+      valvn2_4(3)= sigman2_4
+      valvn2_4(4)= gamman2_4
+
+
+      valv1_5(1) = x1_5
+      valv1_5(2) = amp1_5
+      valv1_5(3) = sigma
+      valv1_5(4) = gamma1
+
+      valv2_5(1) = x1_5+dx2
+      valv2_5(2) = damp2*amp1_5
+      valv2_5(3) = sigma
+      valv2_5(4) = gamma2
+
+
+      valv3_5(1) = x1_5+dx3
+      valv3_5(2) = amp1_5*damp3
+      valv3_5(3) = sigma
+      valv3_5(4) = gamma3
+
+      valv4_5(1) = x1_5+dx4
+      valv4_5(2) = damp4*amp1_5
+      valv4_5(3) = sigma
+      valv4_5(4) = gamma4
+
+      valv5_5(1) = x1_5+dx5
+      valv5_5(2) = damp5*amp1_5
+      valv5_5(3) = sigma
+      valv5_5(4) = gamma5
+
+      valv6_5(1) = x1_5+dx6
+      valv6_5(2) = damp6*amp1_5
+      valv6_5(3) = sigma
+      valv6_5(4) = gamma6
+
+      valv7_5(1) = x1_5+dx7
+      valv7_5(2) = damp7*amp1_5
+      valv7_5(3) = sigma
+      valv7_5(4) = gamma7
+
+      valv8_5(1) = x1_5+dx8
+      valv8_5(2) = damp8*amp1_5
+      valv8_5(3) = sigma
+      valv8_5(4) = gamma8
+
+      valvn1_5(1)= xn1_5
+      valvn1_5(2)= ampn1_5
+      valvn1_5(3)= sigman1_5
+      valvn1_5(4)= gamman1_5
+
+
+      valvn2_5(1)= xn2_5
+      valvn2_5(2)= ampn2_5
+      valvn2_5(3)= sigman2_5
+      valvn2_5(4)= gamman2_5
+
+
+      valv1_6(1) = x1_6
+      valv1_6(2) = amp1_6
+      valv1_6(3) = sigma
+      valv1_6(4) = gamma1
+
+
+      valv2_6(1) = x1_6+dx2
+      valv2_6(2) = damp2*amp1_6
+      valv2_6(3) = sigma
+      valv2_6(4) = gamma2
+
+
+      valv3_6(1) = x1_6+dx3
+      valv3_6(2) = amp1_6*damp3
+      valv3_6(3) = sigma
+      valv3_6(4) = gamma3
+
+
+      valv4_6(1) = x1_6+dx4
+      valv4_6(2) = damp4*amp1_6
+      valv4_6(3) = sigma
+      valv4_6(4) = gamma4
+
+      valv5_6(1) = x1_6+dx5
+      valv5_6(2) = damp5*amp1_6
+      valv5_6(3) = sigma
+      valv5_6(4) = gamma5
+
+
+      valv6_6(1) = x1_6+dx6
+      valv6_6(2) = damp4*amp1_6
+      valv6_6(3) = sigma
+      valv6_6(4) = gamma4
+
+
+      valv7_6(1) = x1_6+dx7
+      valv7_6(2) = damp7*amp1_6
+      valv7_6(3) = sigma
+      valv7_6(4) = gamma7
+
+
+      valv8_6(1) = x1_6+dx8
+      valv8_6(2) = damp8*amp1_6
+      valv8_6(3) = sigma
+      valv8_6(4) = gamma8
+
+
+      valvn1_6(1)= xn1_6
+      valvn1_6(2)= ampn1_6
+      valvn1_6(3)= sigman1_6
+      valvn1_6(4)= gamman1_6
+
+      valvn2_6(1)= xn2_7
+      valvn2_6(2)= ampn2_6
+      valvn2_6(3)= sigman2_6
+      valvn2_6(4)= gamman2_6
+
+      valv1_7(1) = x1_7
+      valv1_7(2) = amp1_7
+      valv1_7(3) = sigma
+      valv1_7(4) = gamma1
+
+      valv2_7(1) = x1_7+dx2
+      valv2_7(2) = damp2*amp1_7
+      valv2_7(3) = sigma
+      valv2_7(4) = gamma2
+
+      valv3_7(1) = x1_7+dx3
+      valv3_7(2) = amp1_7*damp3
+      valv3_7(3) = sigma
+      valv3_7(4) = gamma3
+
+      valv4_7(1) = x1_7+dx4
+      valv4_7(2) = damp4*amp1_7
+      valv4_7(3) = sigma
+      valv4_7(4) = gamma4
+
+      valv5_7(1) = x1_7+dx5
+      valv5_7(2) = damp5*amp1_7
+      valv5_7(3) = sigma
+      valv5_7(4) = gamma5
+      
+      valv6_7(1) = x1_7+dx6
+      valv6_7(2) = damp4*amp1_7
+      valv6_7(3) = sigma
+      valv6_7(4) = gamma4
+
+      valv7_7(1) = x1_7+dx7
+      valv7_7(2) = damp7*amp1_7
+      valv7_7(3) = sigma
+      valv7_7(4) = gamma7
+      valv8_7(1) = x1_7+dx8
+      valv8_7(2) = damp8*amp1_7
+      valv8_7(3) = sigma
+      valv8_7(4) = gamma8
+
+      valvn1_7(1)= xn1_1
+      valvn1_7(2)= ampn1_7
+      valvn1_7(3)= sigman1_7
+      valvn1_7(4)= gamman1_7
+      
+      valvn2_7(1)= xn2_1
+      valvn2_7(2)= ampn2_7
+      valvn2_7(3)= sigman2_7
+      valvn2_7(4)= gamman2_7
+
+
+      valv1_8(1) = x1_8
+      valv1_8(2) = amp1_8
+      valv1_8(3) = sigma
+      valv1_8(4) = gamma1
+
+      valv2_8(1) = x1_8+dx2
+      valv2_8(2) = damp2*amp1_8
+      valv2_8(3) = sigma
+      valv2_8(4) = gamma2
+
+      valv3_8(1) = x1_8+dx3
+      valv3_8(2) = amp1_8*damp3
+      valv3_8(3) = sigma
+      valv3_8(4) = gamma3
+
+
+      valv4_8(1) = x1_8+dx4
+      valv4_8(2) = damp4*amp1_8
+      valv4_8(3) = sigma
+      valv4_8(4) = gamma4
+
+
+      valv5_8(1) = x1_8+dx5
+      valv5_8(2) = damp5*amp1_8
+      valv5_8(3) = sigma
+      valv5_8(4) = gamma5
+
+      valv6_8(1) = x1_8+dx6
+      valv6_8(2) = damp6*amp1_8
+      valv6_8(3) = sigma
+      valv6_8(4) = gamma6
+
+      valv7_8(1) = x1_8+dx7
+      valv7_8(2) = damp7*amp1_8
+      valv7_8(3) = sigma
+      valv7_8(4) = gamma7
+
+      valv8_8(1) = x1_8+dx8
+      valv8_8(2) = damp8*amp1_8
+      valv8_8(3) = sigma
+      valv8_8(4) = gamma8
+
+      valvn1_8(1)= xn1_9
+      valvn1_8(2)= ampn1_8
+      valvn1_8(3)= sigman1_8
+      valvn1_8(4)= gamman1_8
+
+      valvn2_8(1)= xn2_9
+      valvn2_8(2)= ampn2_8
+      valvn2_8(3)= sigman2_8
+      valvn2_8(4)= gamman2_8
+
+      valv1_9(1) = x1_9
+      valv1_9(2) = amp1_9
+      valv1_9(3) = sigma
+      valv1_9(4) = gamma1
+
+      valv2_9(1) = x1_9+dx2
+      valv2_9(2) = damp2*amp1_9
+      valv2_9(3) = sigma
+      valv2_9(4) = gamma2
+
+
+      valv3_9(1) = x1_9+dx3
+      valv3_9(2) = amp1_9*damp3
+      valv3_9(3) = sigma
+      valv3_9(4) = gamma3
+
+
+      valv4_9(1) = x1_9+dx4
+      valv4_9(2) = damp4*amp1_9
+      valv4_9(3) = sigma
+      valv4_9(4) = gamma4
+
+      valv5_9(1) = x1_9+dx5
+      valv5_9(2) = damp5*amp1_9
+      valv5_9(3) = sigma
+      valv5_9(4) = gamma5
+
+
+      valv6_9(1) = x1_9+dx6
+      valv6_9(2) = damp6*amp1_9
+      valv6_9(3) = sigma
+      valv6_9(4) = gamma6
+
+
+      valv7_9(1) = x1_9+dx7
+      valv7_9(2) = damp7*amp1_9
+      valv7_9(3) = sigma
+      valv7_9(4) = gamma7
+
+
+      valv8_9(1) = x1_9+dx8
+      valv8_9(2) = damp8*amp1_9
+      valv8_9(3) = sigma
+      valv8_9(4) = gamma8
+
+
+      valvn1_9(1)= xn1_9
+      valvn1_9(2)= ampn1_9
+      valvn1_9(3)= sigman1_9
+      valvn1_9(4)= gamman1_9
+
+
+      valvn2_9(1)= xn2_9
+      valvn2_9(2)= ampn2_9
+      valvn2_9(3)= sigman2_9
+      valvn2_9(4)= gamman2_9
+
+
+
+c Values for each spectrum
+
+
+
+
+c sp 1
+      IF (j.EQ.1) THEN
+
+            DCS_EIGHT_VOIGT_SET_NEIGHBOUR = VOIGT(x,4,valv1_1) 
+     +     + VOIGT(x,4,valv2_1) + VOIGT(x,4,valv3_1) 
+     +     + VOIGT(x,4,valv4_1) + VOIGT(x,4,valv5_1)
+     +     + VOIGT(x,4,valv6_1) + VOIGT(x,4,valv7_1)
+     +     + VOIGT(x,4,valv8_1) + a_1
+     +     + VOIGT(x,4,valvn1_1) + VOIGT(x,4,valvn2_1)
+
+
+c sp2     
+
+      ELSEIF (j.EQ.2) THEN
+
+            DCS_EIGHT_VOIGT_SET_NEIGHBOUR = VOIGT(x,4,valv1_2) 
+     +     + VOIGT(x,4,valv2_2) + VOIGT(x,4,valv3_2) 
+     +     + VOIGT(x,4,valv4_2) + VOIGT(x,4,valv5_2)
+     +     + VOIGT(x,4,valv6_2) + VOIGT(x,4,valv7_2)
+     +     + VOIGT(x,4,valv8_2) + a_2
+     +     + VOIGT(x,4,valvn1_2) + VOIGT(x,4,valvn2_2)
+
+
+c sp 3     
+      ELSEIF (j.EQ.3) THEN
+
+
+            DCS_EIGHT_VOIGT_SET_NEIGHBOUR = VOIGT(x,4,valv1_3)  
+     +     + VOIGT(x,4,valv2_3) + VOIGT(x,4,valv3_3) 
+     +     + VOIGT(x,4,valv4_3) + VOIGT(x,4,valv5_3)
+     +     + VOIGT(x,4,valv6_3) + VOIGT(x,4,valv7_3)
+     +     + VOIGT(x,4,valv8_3) + a_3
+     +     + VOIGT(x,4,valvn1_3) + VOIGT(x,4,valvn2_3)
+
+c sp 4
+      ELSEIF (j.EQ.4) THEN
+
+            DCS_EIGHT_VOIGT_SET_NEIGHBOUR = VOIGT(x,4,valv1_4) 
+     +     + VOIGT(x,4,valv2_4) + VOIGT(x,4,valv3_4) 
+     +     + VOIGT(x,4,valv4_4) + VOIGT(x,4,valv5_4)
+     +     + VOIGT(x,4,valv6_4) + VOIGT(x,4,valv7_4)
+     +     + VOIGT(x,4,valv8_4) + a_4
+     +     + VOIGT(x,4,valvn1_4) + VOIGT(x,4,valvn2_4)
+
+
+
+c sp 5
+      ELSEIF (j.EQ.5) THEN
+
+            DCS_EIGHT_VOIGT_SET_NEIGHBOUR = VOIGT(x,4,valv1_5) 
+     +     + VOIGT(x,4,valv2_5) + VOIGT(x,4,valv3_5) 
+     +     + VOIGT(x,4,valv4_5) + VOIGT(x,4,valv5_5)
+     +     + VOIGT(x,4,valv6_5) + VOIGT(x,4,valv7_5)
+     +     + VOIGT(x,4,valv8_5) + a_5
+     +     + VOIGT(x,4,valvn1_5) + VOIGT(x,4,valvn2_5)
+
+c sp 6
+      ELSEIF (j.EQ.6) THEN
+
+            DCS_EIGHT_VOIGT_SET_NEIGHBOUR = VOIGT(x,4,valv1_6) 
+     +     + VOIGT(x,4,valv2_6) + VOIGT(x,4,valv3_6) 
+     +     + VOIGT(x,4,valv4_6) + VOIGT(x,4,valv5_6)
+     +     + VOIGT(x,4,valv6_6) + VOIGT(x,4,valv7_6)
+     +     + VOIGT(x,4,valv8_6) + a_6
+     +     + VOIGT(x,4,valvn1_6) + VOIGT(x,4,valvn2_6)
+c sp 7
+      ELSEIF (j.EQ.7) THEN
+
+            DCS_EIGHT_VOIGT_SET_NEIGHBOUR = VOIGT(x,4,valv1_7) 
+     +     + VOIGT(x,4,valv2_7) + VOIGT(x,4,valv3_7) 
+     +     + VOIGT(x,4,valv4_7) + VOIGT(x,4,valv5_7)
+     +     + VOIGT(x,4,valv6_7) + VOIGT(x,4,valv7_7)
+     +     + VOIGT(x,4,valv8_7) + a_7
+     +     + VOIGT(x,4,valvn1_7) + VOIGT(x,4,valvn2_7)
+
+
+c sp 8
+      ELSEIF (j.EQ.8) THEN
+
+            DCS_EIGHT_VOIGT_SET_NEIGHBOUR = VOIGT(x,4,valv1_8) 
+     +     + VOIGT(x,4,valv2_8) + VOIGT(x,4,valv3_8) 
+     +     + VOIGT(x,4,valv4_8) + VOIGT(x,4,valv5_8)
+     +     + VOIGT(x,4,valv6_8) + VOIGT(x,4,valv7_8) 
+     +     + VOIGT(x,4,valv8_8) + a_8
+     +     + VOIGT(x,4,valvn1_8) + VOIGT(x,4,valvn2_8)
+
+
+c sp 9
+      ELSEIF (j.EQ.9) THEN
+
+
+            DCS_EIGHT_VOIGT_SET_NEIGHBOUR = VOIGT(x,4,valv1_9) 
+     +     + VOIGT(x,4,valv2_9) + VOIGT(x,4,valv3_9)
+     +     + VOIGT(x,4,valv4_9) + VOIGT(x,4,valv5_9)
+     +     + VOIGT(x,4,valv6_9) + VOIGT(x,4,valv7_9) 
+     +     + VOIGT(x,4,valv8_9) + a_9 
+     +     + VOIGT(x,4,valvn1_9) + VOIGT(x,4,valvn2_9)
+
+      ELSE
+         WRITE(*,*) 'Too many spectra !! Check your input files, CALCUL'
+         WRITE(*,*) j
+      END IF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+c     Save the different components
+      IF(plot) THEN
+         IF (j.EQ.1) THEN
+            WRITE(40,*) x, DCS_EIGHT_VOIGT_SET_NEIGHBOUR, 
+     +        VOIGT(x,4,valv1_1), VOIGT(x,4,valv2_1),
+     +        VOIGT(x,4,valv3_1), VOIGT(x,4,valv4_1),
+     +        VOIGT(x,4,valv5_1), VOIGT(x,4,valv6_1),
+     +        VOIGT(x,4,valv7_1), VOIGT(x,4,valv8_1), a_1,
+     +        VOIGT(x,4,valvn1_1), VOIGT(x,4,valvn2_1)
+
+         ELSEIF (j.EQ.2) THEN
+            WRITE(40,*) x, DCS_EIGHT_VOIGT_SET_NEIGHBOUR, 
+     +        VOIGT(x,4,valv1_2), VOIGT(x,4,valv2_2),
+     +        VOIGT(x,4,valv3_2), VOIGT(x,4,valv4_2),
+     +        VOIGT(x,4,valv5_2), VOIGT(x,4,valv6_2),
+     +        VOIGT(x,4,valv7_2), VOIGT(x,4,valv8_2), a_2,
+     +        VOIGT(x,4,valvn1_2), VOIGT(x,4,valvn2_2)
+         ELSEIF (j.EQ.3) THEN
+            WRITE(40,*) x, DCS_EIGHT_VOIGT_SET_NEIGHBOUR, 
+     +        VOIGT(x,4,valv1_3), VOIGT(x,4,valv2_3),
+     +        VOIGT(x,4,valv3_3), VOIGT(x,4,valv4_3),
+     +        VOIGT(x,4,valv5_3), VOIGT(x,4,valv6_3),
+     +        VOIGT(x,4,valv7_3), VOIGT(x,4,valv8_3), a_3,
+     +        VOIGT(x,4,valvn1_3), VOIGT(x,4,valvn2_3)
+         ELSEIF (j.EQ.4) THEN
+            WRITE(40,*) x, DCS_EIGHT_VOIGT_SET_NEIGHBOUR, 
+     +        VOIGT(x,4,valv1_4), VOIGT(x,4,valv2_4),
+     +        VOIGT(x,4,valv3_4), VOIGT(x,4,valv4_4),
+     +        VOIGT(x,4,valv5_4), VOIGT(x,4,valv6_4),
+     +        VOIGT(x,4,valv7_4), VOIGT(x,4,valv8_4), a_4,
+     +        VOIGT(x,4,valvn1_4), VOIGT(x,4,valvn2_4)
+         ELSEIF (j.EQ.5) THEN
+            WRITE(40,*) x, DCS_EIGHT_VOIGT_SET_NEIGHBOUR, 
+     +        VOIGT(x,4,valv1_5), VOIGT(x,4,valv2_5),
+     +        VOIGT(x,4,valv3_5), VOIGT(x,4,valv4_5),
+     +        VOIGT(x,4,valv5_5), VOIGT(x,4,valv6_5),
+     +        VOIGT(x,4,valv7_5), VOIGT(x,4,valv8_5), a_5,
+     +        VOIGT(x,4,valvn1_5), VOIGT(x,4,valvn2_5)
+         ELSEIF (j.EQ.6) THEN
+            WRITE(40,*) x, DCS_EIGHT_VOIGT_SET_NEIGHBOUR, 
+     +        VOIGT(x,4,valv1_6), VOIGT(x,4,valv2_6),
+     +        VOIGT(x,4,valv3_6), VOIGT(x,4,valv4_6),
+     +        VOIGT(x,4,valv5_6), VOIGT(x,4,valv6_6),
+     +        VOIGT(x,4,valv7_6), VOIGT(x,4,valv8_6), a_6,
+     +        VOIGT(x,4,valvn1_6), VOIGT(x,4,valvn2_6)
+         ELSEIF (j.EQ.7) THEN
+            WRITE(40,*) x, DCS_EIGHT_VOIGT_SET_NEIGHBOUR, 
+     +        VOIGT(x,4,valv1_7), VOIGT(x,4,valv2_7),
+     +        VOIGT(x,4,valv3_7), VOIGT(x,4,valv4_7),
+     +        VOIGT(x,4,valv5_7), VOIGT(x,4,valv6_7),
+     +        VOIGT(x,4,valv7_7), VOIGT(x,4,valv8_7), a_7,
+     +        VOIGT(x,4,valvn1_7), VOIGT(x,4,valvn2_7)
+         ELSEIF (j.EQ.8) THEN
+            WRITE(40,*) x, DCS_EIGHT_VOIGT_SET_NEIGHBOUR, 
+     +        VOIGT(x,4,valv1_8), VOIGT(x,4,valv2_8),
+     +        VOIGT(x,4,valv3_8), VOIGT(x,4,valv4_8),
+     +        VOIGT(x,4,valv5_8), VOIGT(x,4,valv6_8),
+     +        VOIGT(x,4,valv7_8), VOIGT(x,4,valv8_8), a_8,
+     +        VOIGT(x,4,valvn1_8), VOIGT(x,4,valvn2_8)
+         ELSEIF (j.EQ.9) THEN
+            WRITE(40,*) x, DCS_EIGHT_VOIGT_SET_NEIGHBOUR, 
+     +        VOIGT(x,4,valv1_9), VOIGT(x,4,valv2_9),
+     +        VOIGT(x,4,valv3_9), VOIGT(x,4,valv4_9),
+     +        VOIGT(x,4,valv5_9), VOIGT(x,4,valv6_9),
+     +        VOIGT(x,4,valv7_9), VOIGT(x,4,valv8_9), a_9,
+     +        VOIGT(x,4,valvn1_9), VOIGT(x,4,valvn2_9)
+         ELSE
+            WRITE(*,*) j
+            WRITE(*,*) 'Too many spectra! Check your input files, AFF'
+         ENDIF
+      ENDIF
+      RETURN
+      END
+
+      
+
+
+
+
+
+
+
+      FUNCTION TWO_INTERP_THREE_VOIGT_POLY(X,npar,val,j)
+c     Rocking curve with s and p polarization extracted from simulations
+      IMPLICIT NONE
+      INTEGER*4 npar,j
+      REAL*8 val(npar), valv(4)
+      REAL*8 TWO_INTERP_THREE_VOIGT_POLY, VOIGT, x, y_1, y_2
+      REAL*8 sigma, gamma
+      REAL*8 amp1_1, amp1_2, amp1_3, amp1_4, amp1_5, amp1_6, amp1_7
+      REAL*8 amp1_8, amp1_9
+      REAL*8 amp2_1, amp2_2, amp2_3, amp2_4, amp2_5, amp2_6, amp2_7
+      REAL*8 amp2_8, amp2_9
+      REAL*8 amp3_1, amp3_2, amp3_3, amp3_4, amp3_5, amp3_6, amp3_7
+      REAL*8 amp3_8, amp3_9
+      REAL*8 x1_1, x1_2, x1_3, x1_4
+      REAL*8 x1_5, x1_6, x1_7, x1_8, x1_9
+      REAL*8 x2_1, x2_2, x2_3, x2_4
+      REAL*8 x2_5, x2_6, x2_7, x2_8, x2_9
+      REAL*8 x3_1, x3_2, x3_3, x3_4
+      REAL*8 x3_5, x3_6, x3_7, x3_8, x3_9
+      REAL*8 a_1, a_2, a_3, a_4, a_5, a_6, a_7, a_8, a_9
+
+c     Interpolation variables
+      INTEGER*4 k, nn_1, nn_2, ier_1,ier_2, nest
+      PARAMETER (nest=1000)
+      REAL*8 t_1(nest), c_1(nest), t_2(nest), c_2(nest)
+      COMMON /two_interp/ t_1, t_2, c_1, c_2, k, nn_1, nn_2
+      ! To plot the different components
+      LOGICAL plot
+      COMMON /func_plot/ plot
+
+      amp1_1 = val(1)
+      amp1_2 = val(2)
+      amp1_3 = val(3)
+      amp1_4 = val(4)
+      amp1_5 = val(5)
+      amp1_6 = val(6)
+      amp1_7 = val(7)
+      amp1_8 = val(8)
+      amp1_9 = val(9)
+      amp2_1 = val(10)
+      amp2_2 = val(11)
+      amp2_3 = val(12)
+      amp2_4 = val(13)
+      amp2_5 = val(14)
+      amp2_6 = val(15)
+      amp2_7 = val(16)
+      amp2_8 = val(17)
+      amp2_9 = val(18)
+      amp3_1 = val(19)
+      amp3_2 = val(20)
+      amp3_3 = val(21)
+      amp3_4 = val(22)
+      amp3_5 = val(23)
+      amp3_6 = val(24)
+      amp3_7 = val(25)
+      amp3_8 = val(26)
+      amp3_9 = val(27)
+      x1_1   = val(28)
+      x1_2   = val(29)
+      x1_3   = val(30)
+      x1_4   = val(31)
+      x1_5   = val(32)
+      x1_6   = val(33)
+      x1_7   = val(34)
+      x1_8   = val(35)
+      x1_9   = val(36)
+      x2_1   = val(37)
+      x2_2   = val(38)
+      x2_3   = val(39)
+      x2_4   = val(40)
+      x2_5   = val(41)
+      x2_6   = val(42)
+      x2_7   = val(43)
+      x2_8   = val(44)
+      x2_9   = val(45)
+      x3_1   = val(46)
+      x3_2   = val(47)
+      x3_3   = val(48)
+      x3_4   = val(49)
+      x3_5   = val(50)
+      x3_6   = val(51)
+      x3_7   = val(52)
+      x3_8   = val(53)
+      x3_9   = val(54)
+      sigma = val(55)
+      gamma = val(56)
+      a_1     = val(57)
+      a_2     = val(58)
+      a_3     = val(59)
+      a_4     = val(60)
+      a_5     = val(61)
+      a_6     = val(62)
+      a_7     = val(63)
+      a_8     = val(64)
+      a_9     = val(65)
+
+
+
+      IF (j.EQ.1) THEN
+
+      CALL SPLEV(t_1,nn_1,c_1,k,x-x1_1,y_1,1,1,ier_1)
+      CALL SPLEV(t_2,nn_2,c_2,k,x-x2_1,y_2,1,1,ier_2)
+      valv(1)= x3_1
+      valv(2)= amp3_1
+      valv(3)= sigma
+      valv(4)= gamma
+
+            TWO_INTERP_THREE_VOIGT_POLY =  
+     +     amp1_1*y_1 +amp2_1*y_2
+     +     + VOIGT(x,4,valv) + a_1
+
+
+
+c sp2     
+
+      ELSEIF (j.EQ.2) THEN
+
+            CALL SPLEV(t_1,nn_1,c_1,k,x-x1_2,y_1,1,1,ier_1)
+            CALL SPLEV(t_2,nn_2,c_2,k,x-x2_2,y_2,1,1,ier_2)
+            valv(1)= x3_2
+            valv(2)= amp3_2
+            valv(3)= sigma
+            valv(4)= gamma
+      
+                  TWO_INTERP_THREE_VOIGT_POLY =  
+     +     amp1_2*y_1 +amp2_2*y_2
+     +     + VOIGT(x,4,valv) + a_2
+      
+
+
+c sp 3     
+      ELSEIF (j.EQ.3) THEN
+
+            CALL SPLEV(t_1,nn_1,c_1,k,x-x1_3,y_1,1,1,ier_1)
+            CALL SPLEV(t_2,nn_2,c_2,k,x-x2_3,y_2,1,1,ier_2)
+            valv(1)= x3_3
+            valv(2)= amp3_3
+            valv(3)= sigma
+            valv(4)= gamma
+      
+                  TWO_INTERP_THREE_VOIGT_POLY =  
+     +     amp1_3*y_1 +amp2_3*y_2
+     +     + VOIGT(x,4,valv) + a_3
+
+c sp 4
+      ELSEIF (j.EQ.4) THEN
+
+            CALL SPLEV(t_1,nn_1,c_1,k,x-x1_4,y_1,1,1,ier_1)
+            CALL SPLEV(t_2,nn_2,c_2,k,x-x2_4,y_2,1,1,ier_2)
+            valv(1)= x3_4
+            valv(2)= amp3_4
+            valv(3)= sigma
+            valv(4)= gamma
+      
+                  TWO_INTERP_THREE_VOIGT_POLY =  
+     +     amp1_4*y_1 +amp2_4*y_2
+     +     + VOIGT(x,4,valv) + a_4
+
+
+
+c sp 5
+      ELSEIF (j.EQ.5) THEN
+
+            CALL SPLEV(t_1,nn_1,c_1,k,x-x1_5,y_1,1,1,ier_1)
+            CALL SPLEV(t_2,nn_2,c_2,k,x-x2_5,y_2,1,1,ier_2)
+            valv(1)= x3_5
+            valv(2)= amp3_5
+            valv(3)= sigma
+            valv(4)= gamma
+      
+                  TWO_INTERP_THREE_VOIGT_POLY =  
+     +     amp1_5*y_1 +amp2_5*y_2
+     +     + VOIGT(x,4,valv) + a_5
+c sp 6
+      ELSEIF (j.EQ.6) THEN
+            CALL SPLEV(t_1,nn_1,c_1,k,x-x1_6,y_1,1,1,ier_1)
+            CALL SPLEV(t_2,nn_2,c_2,k,x-x2_6,y_2,1,1,ier_2)
+            valv(1)= x3_6
+            valv(2)= amp3_6
+            valv(3)= sigma
+            valv(4)= gamma
+      
+                  TWO_INTERP_THREE_VOIGT_POLY =  
+     +     amp1_6*y_1 +amp2_6*y_2
+     +     + VOIGT(x,4,valv) + a_6
+
+c sp 7
+      ELSEIF (j.EQ.7) THEN
+
+            CALL SPLEV(t_1,nn_1,c_1,k,x-x1_7,y_1,1,1,ier_1)
+            CALL SPLEV(t_2,nn_2,c_2,k,x-x2_7,y_2,1,1,ier_2)
+            valv(1)= x3_7
+            valv(2)= amp3_7
+            valv(3)= sigma
+            valv(4)= gamma
+      
+                  TWO_INTERP_THREE_VOIGT_POLY =  
+     +     amp1_7*y_1 +amp2_7*y_2
+     +     + VOIGT(x,4,valv) + a_7
+
+c sp 8
+      ELSEIF (j.EQ.8) THEN
+
+            CALL SPLEV(t_1,nn_1,c_1,k,x-x1_8,y_1,1,1,ier_1)
+            CALL SPLEV(t_2,nn_2,c_2,k,x-x2_8,y_2,1,1,ier_2)
+            valv(1)= x3_8
+            valv(2)= amp3_8
+            valv(3)= sigma
+            valv(4)= gamma
+      
+                  TWO_INTERP_THREE_VOIGT_POLY =  
+     +     amp1_8*y_1 +amp2_8*y_2
+     +     + VOIGT(x,4,valv) + a_8
+
+
+c sp 9
+      ELSEIF (j.EQ.9) THEN
+            CALL SPLEV(t_1,nn_1,c_1,k,x-x1_9,y_1,1,1,ier_1)
+            CALL SPLEV(t_2,nn_2,c_2,k,x-x2_9,y_2,1,1,ier_2)
+            valv(1)= x3_9
+            valv(2)= amp3_9
+            valv(3)= sigma
+            valv(4)= gamma
+      
+                  TWO_INTERP_THREE_VOIGT_POLY =  
+     +     amp1_9*y_1 +amp2_9*y_2
+     +     + VOIGT(x,4,valv) + a_9
+
+      ELSE
+         WRITE(*,*) 'Too many spectra !! Check your input files, CALCUL'
+         WRITE(*,*) j
+      END IF
+      
+
+
+c     Save different components
+      IF(plot) THEN
+            IF(j.EQ.1) THEN
+            WRITE(40,*) x, TWO_INTERP_THREE_VOIGT_POLY, amp1_1*y_1,
+     +        amp2_1*y_2, VOIGT(x,4,valv), a_1
+
+            ELSEIF(j.EQ.2) THEN
+            WRITE(40,*) x, TWO_INTERP_THREE_VOIGT_POLY, amp1_2*y_1, 
+     +        amp2_2*y_2, VOIGT(x,4,valv), a_2
+
+            ELSEIF(j.EQ.3) THEN
+            WRITE(40,*) x, TWO_INTERP_THREE_VOIGT_POLY, amp1_3*y_1,
+     +        amp2_3*y_2, VOIGT(x,4,valv), a_3
+
+            ELSEIF(j.EQ.4) THEN
+            WRITE(40,*) x, TWO_INTERP_THREE_VOIGT_POLY, amp1_4*y_1,
+     +        amp2_4*y_2, VOIGT(x,4,valv), a_4
+
+            ELSEIF(j.EQ.5) THEN
+            WRITE(40,*) x, TWO_INTERP_THREE_VOIGT_POLY, amp1_5*y_1, 
+     +        amp2_5*y_2, VOIGT(x,4,valv), a_5
+
+            ELSEIF(j.EQ.6) THEN
+            WRITE(40,*) x, TWO_INTERP_THREE_VOIGT_POLY, amp1_6*y_1, 
+     +        amp2_6*y_2, VOIGT(x,4,valv), a_6
+
+            ELSEIF(j.EQ.7) THEN
+            WRITE(40,*) x, TWO_INTERP_THREE_VOIGT_POLY, amp1_7*y_1,
+     +        amp2_7*y_2, VOIGT(x,4,valv), a_7
+
+            ELSEIF(j.EQ.8) THEN
+            WRITE(40,*) x, TWO_INTERP_THREE_VOIGT_POLY, amp1_8*y_1,
+     +        amp2_8*y_2, VOIGT(x,4,valv), a_8
+
+            ELSEIF(j.EQ.9) THEN
+            WRITE(40,*) x, TWO_INTERP_THREE_VOIGT_POLY, amp1_9*y_1, 
+     +        amp2_9*y_2, VOIGT(x,4,valv), a_9
+
+
+
+
+            ENDIF
+      ENDIF
+
+      RETURN
+      END
+            
