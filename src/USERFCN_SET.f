@@ -50,6 +50,12 @@ c     Choose your model (see below for definition)
             SELECT_USERFCN_SET = 19
       ELSE IF(funcname.EQ.'TWO_INTERP_THREE_VOIGT_POLY') THEN
             SELECT_USERFCN_SET = 20
+      ELSE IF(funcname.EQ.'DCS_EIGHT_VOIGT_POLYBG_X0_SET') THEN
+            SELECT_USERFCN_SET = 18
+      ELSE IF(funcname.EQ.'DCS_EIGHT_VOIGT_SET_NEIGHBOUR') THEN
+            SELECT_USERFCN_SET = 19
+      ELSE IF(funcname.EQ.'TWO_INTERP_THREE_VOIGT_POLY') THEN
+            SELECT_USERFCN_SET = 20
       ELSE
          WRITE(*,*) 'Selected function:', funcname
          WRITE(*,*) 'Error in the function name def. in USERFCN_SET'
@@ -76,7 +82,6 @@ c     Choose your model (see below for definition)
       REAL*8 FOUR_GAUSS_ERF_TWO_GAUSS_STAN2_SET
       REAL*8 FOUR_GAUSS_ERF_TWO_GAUSS_STAN3_SET
       REAL*8 ROCKING_CURVE_SET
-      INTEGER*4 funcid
       REAL*8 DCS_EIGHT_VOIGT_POLYBG_X0_SET
       REAL*8 DCS_EIGHT_VOIGT_SET_NEIGHBOUR
       REAL*8 MULTIPLE_VOIGT_SET
