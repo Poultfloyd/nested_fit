@@ -1471,19 +1471,28 @@ class Analysis(object):
 
         #---------------------------------------------------------------------------------------------------------------------
 
-    def triangle_plot(self,path=currentpath):
-        '''
+    def triangle_plot(
+        self, path: str = currentpath, params: list = None, savefile: bool = False
+    ) -> None:
+        """
         Triangle plot of all probability distributions using GetDist package
-        '''
+        
+
+        Args:
+            path (str, optional): Path to the output files. Defaults to the current path.
+            params (list, optional): List of str with the name of the parameters. Defaults to None for all parameters.
+            savefile (bool, optional): Option for saving the triangle plot. Saved under currentpath/triangle_plot.pdf. Defaults to False.
+        """
+
         from getdist import plots
 
         self.path = path
 
-
         g = plots.get_subplot_plotter()
-        g.triangle_plot(self.path+'/nf_output_points',filled=True)
+        g.triangle_plot(self.path + "/nf_output_points", params=params, filled=True)
+        if savefile == True:
+            plt.savefig(self.path + "/triangle_plot.pdf")
         plt.tight_layout()
-
         plt.show()
 
 
