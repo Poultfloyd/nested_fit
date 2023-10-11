@@ -74,7 +74,7 @@ CONTAINS
   END SUBROUTINE INIT_SEARCH_METHOD
 
   SUBROUTINE INIT_LIKELIHOOD_FUNC()
-#ifdef OPENMPI_ON   
+#ifdef OPENMPI_ON  
       INTEGER(4) :: mpi_ierror
 #endif
 
@@ -433,17 +433,17 @@ CONTAINS
           ! Suggestion for the values: s between m-sqrt(2*m),m+sqrt(2*m)
           ! with m the number of points
           CALL INIT_ROCKING(par_in(6),par_in(7))
-       ELSE IF(funcname.EQ.'INTERP_TWO_VOIGT_POLY_X0') THEN
-          CALL INIT_INTERP(par_in(13))
-       ELSE IF(funcname.EQ.'INTERP_THREE_VOIGT_POLY_X0') THEN
-          CALL INIT_INTERP(par_in(16))
+         ELSE IF(funcname.EQ.'INTERP_TWO_VOIGT_POLY_X0') THEN
+            CALL INIT_INTERP(par_in(13))
+         ELSE IF(funcname.EQ.'INTERP_THREE_VOIGT_POLY_X0') THEN
+            CALL INIT_INTERP(par_in(16))
        ELSE IF(funcname.EQ.'TWO_INTERP_VOIGT_POLY'&
             .OR.funcname.EQ.'TWO_INTERP_VOIGT_POLY_X0') THEN
           ! Passing as argument the smoothing factors to be adjusted case by case
           ! Suggestion for the values: s between m-sqrt(2*m),m+sqrt(2*m)
           ! with m the number of points
           CALL INIT_TWO_INTERP(par_in(14),par_in(15))
-       ELSE IF(funcname.EQ.'TWO_INTERP_TWO_VOIGT_POLY_X0'&
+         ELSE IF(funcname.EQ.'TWO_INTERP_TWO_VOIGT_POLY_X0'&
             .OR.funcname.EQ.'TWO_INTERP_TWO_VOIGT_POLY') THEN
           ! Passing as argument the smoothing factors to be adjusted case by case
           ! Suggestion for the values: s between m-sqrt(2*m),m+sqrt(2*m)
@@ -459,18 +459,19 @@ CONTAINS
             .OR.funcname.EQ.'SIX_VOIGT_PARA_SHIRBG_SIG_PLEIADES'&
             .OR.funcname.EQ.'SIX_VOIGT_PARAMETER_SHIRLEYBG_PLEIADES') THEN
           CALL INIT_SHIRLEY(ndata,x(:,1),nc(:,1))
-       ELSE IF(funcname.EQ.'INTERP_CONVO_POLY_X0') THEN
-          CALL INIT_INTERP_CONVO(par_in(8))
-       ELSE IF(funcname.EQ.'TWO_INTERP_THREE_VOIGT_POLY') THEN 
-          CALL INIT_TWO_INTERP(par_in(67),par_in(68))
+         ELSE IF(funcname.EQ.'INTERP_CONVO_POLY_X0') THEN
+            CALL INIT_INTERP_CONVO(par_in(8))
+         ELSE IF(funcname.EQ.'TWO_INTERP_THREE_VOIGT_POLY') THEN 
+            CALL INIT_TWO_INTERP(par_in(67),par_in(68))
        END IF
-    ELSE IF(funcname.EQ.'ROCKING_CURVE_SET') THEN
+    ELSE
+       IF(funcname.EQ.'ROCKING_CURVE_SET') THEN
           ! Passing as argument the smoothing factors to be adjusted case by case
           ! Suggestion for the values: s between m-sqrt(2*m),m+sqrt(2*m)
           ! with m the number of points
           CALL INIT_ROCKING_SET(par_in(9),par_in(10),par_in(11),par_in(12))
        END IF
-
+    END IF
 
   END SUBROUTINE INIT_FUNCTIONS
 
@@ -1023,4 +1024,5 @@ CONTAINS
   END SUBROUTINE DEALLOCATE_DATA
 
   !#####################################################################################################################
+
 END MODULE MOD_LIKELIHOOD

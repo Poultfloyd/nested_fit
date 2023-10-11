@@ -1,8 +1,8 @@
 #  Automatic Time-stamp: <Last changed by martino on Tuesday 08 June 2021 at CEST 15:08:06>
 # Copyright M. Trassinelli
-# Last modified: 2023/10/20 14:51:31
+# Last modified: 2023/10/05 11:56:10
 
-VERSION_FULL = 4.5.6
+VERSION_FULL = 4.5.5
 VERSION = 4.5
 
 NAME    = nested_fit$(VERSION_FULL)
@@ -10,7 +10,7 @@ NAME    = nested_fit$(VERSION_FULL)
 NAME_FUNC    = nested_fit_func$(VERSION_FULL)
 
 #Choose option for makefile. Comment if not used
-COMP = g #g for gfortran, i for ifort
+COMP = i #g for gfortran, i for ifort
 #DEBUG = ON #Enable debug mode.
 #NORNG = ON #Uses the same set seed. Useful for testing
 OPENMP = ON #Enable/Disable OpenMP.
@@ -120,23 +120,12 @@ ifeq ($(AUTOTESTS),ON )
    FFLAGS += -DAUTOTESTS_ON
 else
 endif
-############## FLAG TO COSTUMIZE #############################
-#### Uncomment next line to run in parallel in LINUX
-FFLAGS  = -fopenmp
-#### Uncomment next line to optimize in MAC
-#FFLAGS   = -framework accelerate
-#### Uncomment next line to run in parallel and optimize in MAC
-#FFLAGS   = -framework accelerate -fopenmp
-###############################################################
-### ATTENTION!!!!
-### If you do not want to run in parallel,
-### modify the variable "parallel_on" in nested fit file
-###############################################################
 
 CFILES =
 
 # In the order: my stuff, Num. Rec., SLATEC, FITPACK, others stuff
-FFILES  = USERFCN.f USERFCN_SET.f init_interpolation.f \
+FFILES  = gauleg.f90 gaulag.f90 \
+	USERFCN.f USERFCN_SET.f init_interpolation.f \
 	\
 	SLATEC/dpsort.f \
 	SLATEC/xermsg.f SLATEC/fdump.f SLATEC/j4save.f SLATEC/xercnt.f \
@@ -153,48 +142,24 @@ F90FILES = Mod_parameters.f90 Mod_likelihood.f90 Mod_timestamp.f90 userfcn_set_f
 	Mod_metadata.f90 \
 	argparse.f90 \
 	nested_fit.f90 nested_sampling.f90 \
-	USERFCN_2D.f90 gaulag.f90 gauleg.f90\
-	dlog_fac.f90 sortn_slatec.f90 meanvar.f90 randn.f90 shirley_fitpack.f90
+	USERFCN_2D.f90 \
+	dlog_fac.f90 sortn_slatec.f90 meanvar.f90 randn.f90 shirley_fitpack.f90 \
 
+F90FILES_FUNC = Mod_parameters.f90 Mod_timestamp.f90 Mod_likelihood_func.f90 \
+	Mod_cluster_analysis.f90 Mod_search_new_point.f90 \
+	Mod_options.f90 Mod_mpi.f90 Mod_math.f90 \
+	Mod_metadata.f90 \
+        argparse.f90 \
+	nested_fit.f90 nested_sampling.f90 \
+	USERFCN_2D.f90 \
+	dlog_fac.f90 sortn_slatec.f90 meanvar.f90 randn.f90 shirley_fitpack.f90 \
 
-# for gfortran
-#OPT = -O2 -static
-#OPT = -O2 -static
-# For Intel fortran
-#OPT = -O2 -no-wrap-margin
-#OPT = -O2 -heap-arrays -no-wrap-margin
-#OPT = -O2 -no-wrap-margin
-#OPT = -fast -heap-arrays -no-wrap-margin
-#OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin
-#OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin -check uninit -check bounds -traceback
-#OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin -check uninit -check bounds -traceback 
-# OPT = -Ofast -g -xHost -heap-arrays -no-wrap-margin -check bounds -traceback 
-OPT = -Ofast -g -O3 -march=core-avx2 -heap-arrays -no-wrap-margin -check bounds -traceback 
-
-# other debug options for gfortran
-#OPT = -g  -C -static
-#OPT = -O0 -g
-#OPT = -O0 -g  -fbounds-check -Wall  -ffpe-trap=invalid,zero,overflow,underflow -fbacktrace -ftrapv
-#OPT = -g -Wall -Wextra -Warray-temporaries -Wconversion -fimplicit-none -fbacktrace -ffree-line-length-0 -fcheck=all -ffpe-trap=zero,overflow,underflow -finit-real=nan
-#OPT = -g -Wall -Wextra -Warray-temporaries -Wconversion -fbacktrace -ffree-line-length-0 -fcheck=all -ffpe-trap=zero,overflow -finit-real=nan
-
-# other debug options for ifort
-#OPT = -O0 -g -debug all -check bounds -traceback -check all -check uninit -ftrapuv -gen-interfaces -no-wrap-margin
-#OPT = -O0 -g -check all -fpe0 -warn -traceback -debug extended -no-wrap-margin
-#OPT = -O0 -g -xHost -heap-arrays -check uninit -check bounds -traceback -stand f08 -no-wrap-margin
-#OPT = -O0 -heap-arrays -no-wrap-margin -g -check uninit -check bounds -traceback
-
-#LDFLAGS = $(FFLAGS)
-#LDFLAGS = -fopenmp
-#LDFLAGS = -framework accelerate
-#LDFLAGS = -framework accelerate -fopenmp
 
 # Rules...
 #FC  = gfortran
-FC  = ifort
+#FC  = ifort
 CC  = gcc
 FC90= $(FC)
-OBJFILES = $(CFILES:.c=.o)  $(F90FILES:.f90=.o) $(FFILES:.f=.o)
 SRCFILES =  $(FFILES)
 
 
@@ -219,7 +184,29 @@ $(NAME): $(OBJFILES) $(FFILES)   $(LIBG)
 	chmod u+x $@
 	rm -f $(HOME)/bin/$@
 	cp -p $@ $(HOME)/bin
-.f.o:
+	mv $@ ../bin/.
+
+$(NAME_FUNC):  $(OBJFILES_FUNC) $(FFILES)   $(LIBG)
+	$(FC) -o $@  $(FFLAGS) $(OBJFILES_FUNC) $(LIBG) $(LDFLAGS)
+	chmod 640 $@
+	chmod g+x $@
+	chmod u+x $@
+	rm -f $(HOME)/bin/$@
+	cp -p $@ $(HOME)/bin
+	mv $@ ../bin/.
+
+
+%.o: $(dir $(FFILES))/%.f
+	$(FC) -c $(FFLAGS) ${OPT} $^
+
+.f90.o:
+	$(FC90) -c $(FFLAGS) ${OPT} $<
+
+
+#f90getopt.o: cli/f90getopt.f90
+#	$(FC) -c $(FFLAGS) ${OPT} $<
+
+argparse.o: cli/argparse.f90
 	$(FC) -c $(FFLAGS) ${OPT} $<
 USERFCN_SET.o: userfcn_set_f90.o
 
