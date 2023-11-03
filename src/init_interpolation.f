@@ -322,7 +322,8 @@ c     Interpolation subroutine variables
       REAL*8  s_1, s_2, s_3
       PARAMETER (nest=1000)
 c     s_s=90,s_p=60
-      REAL*8 t_1(nest),c_1(nest),t_2(nest),c_2(nest),t_3(nest),c_3(nest)
+      REAL*8 t_1(nest),c_1(nest),t_2(nest),c_2(nest)
+      REAL*8 t_3(nest),c_3(nest)
       COMMON /three_interp/ t_1,t_2,t_3,c_1,c_2,c_3,k,nn_1,nn_2,nn_3
 
 

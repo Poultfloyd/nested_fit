@@ -50,7 +50,7 @@ endif
 ifeq ($(COMP),g )
     $(info Compiler = gfortran.)
     ifeq ($(DEBUG),ON )
-        FFLAGS = -DDEBUG_ON -cpp -O0 -Wall -g -ffree-line-length-0 -fbounds-check 
+        FFLAGS = -DDEBUG_ON -cpp -O0 -Wall -g -ffree-line-length-0 -fbounds-check
     else
         FFLAGS = -cpp -O2 -ffree-line-length-0
     endif
@@ -60,7 +60,7 @@ else ifeq ($(COMP),i )
     ifeq ($(DEBUG),ON )
         FFLAGS = -DDEBUG_ON -cpp -heap-arrays -O0 -g -no-wrap-margin -check bounds -warn all -nogen-interfaces
     else
-        FFLAGS = -cpp -heap-arrays -O2 -no-wrap-margin
+        FFLAGS = -cpp -heap-arrays -O2 -no-wrap-margin -traceback
     endif
      
     FC  = ifort

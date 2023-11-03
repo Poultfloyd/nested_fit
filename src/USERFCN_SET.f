@@ -50,6 +50,10 @@ c     Choose your model (see below for definition)
             SELECT_USERFCN_SET = 19
       ELSE IF(funcname.EQ.'TWO_INTERP_THREE_VOIGT_POLY') THEN
             SELECT_USERFCN_SET = 20
+      ELSE IF(funcname.EQ.'THREE_INTERP_POLY_N_SET') THEN
+            SELECT_USERFCN_SET = 21
+
+            
       ELSE
          WRITE(*,*) 'Selected function:', funcname
          WRITE(*,*) 'Error in the function name def. in USERFCN_SET'
@@ -79,7 +83,7 @@ c     Choose your model (see below for definition)
       INTEGER*4 funcid
       REAL*8 DCS_EIGHT_VOIGT_POLYBG_X0_SET
       REAL*8 DCS_EIGHT_VOIGT_SET_NEIGHBOUR
-      REAL*8 MULTIPLE_VOIGT_SET
+      REAL*8 THREE_INTERP_POLY_N_SET
       REAL*8 TWO_INTERP_THREE_VOIGT_POLY
 
  
@@ -127,6 +131,9 @@ c     Choose your model (see below for definition)
          USERFCN_SET = DCS_EIGHT_VOIGT_SET_NEIGHBOUR(x,npar,val,j)
       CASE(20)
             USERFCN_SET = TWO_INTERP_THREE_VOIGT_POLY(x,npar,val,j)
+      CASE(21)
+            USERFCN_SET = THREE_INTERP_POLY_N_SET(x,npar,val,j) 
+            
       
       END SELECT
       RETURN
@@ -4676,25 +4683,6 @@ c sp 9
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 c     Save the different components
       IF(plot) THEN
          IF (j.EQ.1) THEN
@@ -5058,4 +5046,428 @@ c     Save different components
 
       RETURN
       END
+
+
+
+
+
+      FUNCTION THREE_INTERP_POLY_N_SET(X,npar,val,j)
+c     Rocking curve with s and p polarization extracted from simulations
+      IMPLICIT NONE
+      INTEGER*4 npar,j
+      REAL*8 val(npar), valv(4)
+      REAL*8 THREE_INTERP_POLY_N_SET, x, y_1, y_2, y_3, VOIGT
+      REAL*8 sigma, gamma
+      REAL*8 amp1_1, amp1_2, amp1_3, amp1_4, amp1_5, amp1_6, amp1_7
+      REAL*8 amp1_8, amp1_9
+      REAL*8 damp2, damp3
+      REAL*8 x1_1, x1_2, x1_3, x1_4
+      REAL*8 x1_5, x1_6, x1_7, x1_8, x1_9
+      REAL*8 dx2, dx3
+      REAL*8 a_1, a_2, a_3, a_4, a_5, a_6, a_7, a_8, a_9
+      
+      REAL*8 xn1_1, xn1_2, xn1_3, xn1_4, xn1_5, xn1_6, xn1_7, xn1_8
+      REAL*8 xn2_1, xn2_2, xn2_3, xn2_4, xn2_5, xn2_6, xn2_7, xn2_8
+      REAL*8 xn1_9, xn2_9
+      REAL*8 ampn1_1, ampn1_2, ampn1_3, ampn1_4, ampn1_5, ampn1_6
+      REAL*8 ampn1_7, ampn1_8, ampn1_9
+      REAL*8 ampn2_1, ampn2_2, ampn2_3, ampn2_4, ampn2_5, ampn2_6
+      REAL*8 ampn2_7, ampn2_8, ampn2_9
+      REAL*8 sigman1_1, sigman1_2, sigman1_3, sigman1_4,sigman1_5
+      REAL*8 sigman1_6, sigman1_7, sigman1_8, sigman1_9
+      REAL*8 sigman2_1, sigman2_2, sigman2_3, sigman2_4,sigman2_5
+      REAL*8 sigman2_6, sigman2_7, sigman2_8, sigman2_9
+      REAL*8 gamman1_1, gamman1_2, gamman1_3, gamman1_4,gamman1_5
+      REAL*8 gamman1_6, gamman1_7, gamman1_8, gamman1_9
+      REAL*8 gamman2_1, gamman2_2, gamman2_3, gamman2_4,gamman2_5
+      REAL*8 gamman2_6, gamman2_7, gamman2_8, gamman2_9
+
+      REAL*8 valvn1_1(4), valvn1_2(4), valvn1_3(4), valvn1_4(4)
+      REAL*8 valvn1_5(4)
+      REAL*8 valvn1_6(4), valvn1_7(4), valvn1_8(4), valvn1_9(4)
+      REAL*8 valvn2_1(4), valvn2_2(4), valvn2_3(4), valvn2_4(4) 
+      REAL*8 valvn2_5(4)
+      REAL*8 valvn2_6(4), valvn2_7(4), valvn2_8(4), valvn2_9(4)
+
+
+c     Interpolation variables
+      INTEGER*4 k, nn_1, nn_2, ier_1,ier_2, nest, nn_3, ier_3
+      PARAMETER (nest=1000)
+      REAL*8 t_1(nest),c_1(nest),t_2(nest),c_2(nest)
+      REAL*8 t_3(nest),c_3(nest)
+      COMMON /three_interp/ t_1,t_2,t_3,c_1,c_2,c_3,k,nn_1,nn_2,nn_3
+      ! To plot the different components
+      LOGICAL plot
+      COMMON /func_plot/ plot
+
+      amp1_1 = val(1)
+      amp1_2 = val(2)
+      amp1_3 = val(3)
+      amp1_4 = val(4)
+      amp1_5 = val(5)
+      amp1_6 = val(6)
+      amp1_7 = val(7)
+      amp1_8 = val(8)
+      amp1_9 = val(9)
+      x1_1   = val(10)
+      x1_2   = val(11)
+      x1_3   = val(12)
+      x1_4   = val(13)
+      x1_5   = val(14)
+      x1_6   = val(15)
+      x1_7   = val(16)
+      x1_8   = val(17)
+      x1_9   = val(18)
+      damp2  = val(19)
+      dx2    = val(20)
+      damp3  = val(21)
+      dx3    = val(22)
+      a_1     = val(23)
+      a_2     = val(24)
+      a_3     = val(25)
+      a_4     = val(26)
+      a_5     = val(27)
+      a_6     = val(28)
+      a_7     = val(29)
+      a_8     = val(30)
+      a_9     = val(31)
+      xn1_1 = val(32)
+      xn1_2 = val(33)
+      xn1_3 = val(34)
+      xn1_4 = val(35)
+      xn1_5 = val(36)
+      xn1_6 = val(37)
+      xn1_7 = val(38)
+      xn1_8 = val(39)
+      xn1_9 = val(40)
+      ampn1_1 = val(41)        
+      ampn1_2 = val(42)
+      ampn1_3 = val(43)
+      ampn1_4 = val(44)
+      ampn1_5 = val(45)
+      ampn1_6 = val(46)
+      ampn1_7 = val(47)
+      ampn1_8 = val(48)
+      ampn1_9 = val(49)
+      sigman1_1 = val(50)
+      sigman1_2 = val(51)
+      sigman1_3 = val(52)
+      sigman1_4 = val(53)
+      sigman1_5 = val(54)
+      sigman1_6 = val(55)
+      sigman1_7 = val(56)
+      sigman1_8 = val(57)
+      sigman1_9 = val(58)
+      gamman1_1 = val(59)
+      gamman1_2 = val(60)
+      gamman1_3 = val(61)
+      gamman1_4 = val(62)
+      gamman1_5 = val(63)
+      gamman1_6 = val(64)
+      gamman1_7 = val(65)
+      gamman1_8 = val(66)
+      gamman1_9 = val(67)
+      xn2_1 = val(68)
+      xn2_2 = val(69)
+      xn2_3 = val(70)
+      xn2_4 = val(71)
+      xn2_5 = val(72)
+      xn2_6 = val(73)
+      xn2_7 = val(74)
+      xn2_8 = val(75)
+      xn2_9 = val(76)
+      ampn2_1 = val(77)        
+      ampn2_2 = val(78)
+      ampn2_3 = val(79)
+      ampn2_4 = val(80)
+      ampn2_5 = val(81)
+      ampn2_6 = val(82)
+      ampn2_7 = val(83)
+      ampn2_8 = val(84)
+      ampn2_9 = val(85)
+      sigman2_1 = val(86)
+      sigman2_2 = val(87)
+      sigman2_3 = val(88)
+      sigman2_4 = val(89)
+      sigman2_5 = val(90)
+      sigman2_6 = val(91)
+      sigman2_7 = val(92)
+      sigman2_8 = val(93)
+      sigman2_9 = val(94)
+      gamman2_1 = val(95)
+      gamman2_2 = val(96)
+      gamman2_3 = val(97)
+      gamman2_4 = val(98)
+      gamman2_5 = val(99)
+      gamman2_6 = val(100)
+      gamman2_7 = val(101)
+      gamman2_8 = val(102)
+      gamman2_9 = val(103)
+
+
+
+
+
+      valvn1_1(1)= xn1_1
+      valvn1_1(2)= ampn1_1
+      valvn1_1(3)= sigman1_1
+      valvn1_1(4)= gamman1_1
+
+      valvn2_1(1)= xn2_1
+      valvn2_1(2)= ampn2_1
+      valvn2_1(3)= sigman2_1
+      valvn2_1(4)= gamman2_1
+
+      valvn1_2(1)= xn1_2
+      valvn1_2(2)= ampn1_2
+      valvn1_2(3)= sigman1_2
+      valvn1_2(4)= gamman1_2
+
+      valvn2_2(1)= xn2_2
+      valvn2_2(2)= ampn2_2
+      valvn2_2(3)= sigman2_2
+      valvn2_2(4)= gamman2_2
+
+      valvn1_3(1)= xn1_3
+      valvn1_3(2)= ampn1_3
+      valvn1_3(3)= sigman1_3
+      valvn1_3(4)= gamman1_3
+
+      valvn2_3(1)= xn2_3
+      valvn2_3(2)= ampn2_3
+      valvn2_3(3)= sigman2_3
+      valvn2_3(4)= gamman2_3
+
+      valvn1_4(1)= xn1_4
+      valvn1_4(2)= ampn1_4
+      valvn1_4(3)= sigman1_4
+      valvn1_4(4)= gamman1_4
+
+      valvn2_4(1)= xn2_4
+      valvn2_4(2)= ampn2_4
+      valvn2_4(3)= sigman2_4
+      valvn2_4(4)= gamman2_4
+
+      valvn1_5(1)= xn1_5
+      valvn1_5(2)= ampn1_5
+      valvn1_5(3)= sigman1_5
+      valvn1_5(4)= gamman1_5
+
+      valvn2_5(1)= xn2_5
+      valvn2_5(2)= ampn2_5
+      valvn2_5(3)= sigman2_5
+      valvn2_5(4)= gamman2_5
+
+      valvn1_6(1)= xn1_6
+      valvn1_6(2)= ampn1_6
+      valvn1_6(3)= sigman1_6
+      valvn1_6(4)= gamman1_6
+
+      valvn2_6(1)= xn2_6
+      valvn2_6(2)= ampn2_6
+      valvn2_6(3)= sigman2_6
+      valvn2_6(4)= gamman2_6
+
+      valvn1_7(1)= xn1_7
+      valvn1_7(2)= ampn1_7
+      valvn1_7(3)= sigman1_7
+      valvn1_7(4)= gamman1_7
+
+      valvn2_7(1)= xn2_7
+      valvn2_7(2)= ampn2_7
+      valvn2_7(3)= sigman2_7
+      valvn2_7(4)= gamman2_7
+
+      valvn1_8(1)= xn1_8
+      valvn1_8(2)= ampn1_8
+      valvn1_8(3)= sigman1_8
+      valvn1_8(4)= gamman1_8
+
+      valvn2_8(1)= xn2_8
+      valvn2_8(2)= ampn2_8
+      valvn2_8(3)= sigman2_8
+      valvn2_8(4)= gamman2_8
+
+      valvn1_9(1)= xn1_9
+      valvn1_9(2)= ampn1_9
+      valvn1_9(3)= sigman1_9
+      valvn1_9(4)= gamman1_9
+
+      valvn2_9(1)= xn2_9
+      valvn2_9(2)= ampn2_9
+      valvn2_9(3)= sigman2_9
+      valvn2_9(4)= gamman2_9
+
+
+      IF (j.EQ.1) THEN
+
+      CALL SPLEV(t_1,nn_1,c_1,k,x-x1_1,y_1,1,1,ier_1)
+      CALL SPLEV(t_2,nn_2,c_2,k,x-x1_1-dx2,y_2,1,1,ier_2)
+      CALL SPLEV(t_3,nn_3,c_2,k,x-x1_1-dx3,y_3,1,1,ier_3)
+
+
+      THREE_INTERP_POLY_N_SET =  amp1_1*y_1 +damp2*amp1_1*y_2
+     +     + damp3*amp1_1*y_3 + VOIGT(x,4,valvn1_1) 
+     +     + VOIGT(x,4,valvn2_1) + a_1
+
+
+
+c sp2     
+
+      ELSEIF (j.EQ.2) THEN
+      CALL SPLEV(t_1,nn_1,c_1,k,x-x1_2,y_1,1,1,ier_1)
+      CALL SPLEV(t_2,nn_2,c_2,k,x-x1_2-dx2,y_2,1,1,ier_2)
+      CALL SPLEV(t_3,nn_3,c_2,k,x-x1_2-dx3,y_3,1,1,ier_3)
+      
+      
+      THREE_INTERP_POLY_N_SET =  amp1_2*y_1 +damp2*amp1_2*y_2
+     +     + damp3*amp1_2*y_3 + VOIGT(x,4,valvn1_2) 
+     +     + VOIGT(x,4,valvn2_2) + a_2
+
+c sp 3     
+      ELSEIF (j.EQ.3) THEN
+
+      CALL SPLEV(t_1,nn_1,c_1,k,x-x1_3,y_1,1,1,ier_1)
+      CALL SPLEV(t_2,nn_2,c_2,k,x-x1_3-dx2,y_2,1,1,ier_2)
+      CALL SPLEV(t_3,nn_3,c_2,k,x-x1_3-dx3,y_3,1,1,ier_3)
+      
+      
+      THREE_INTERP_POLY_N_SET =  amp1_3*y_1 +damp2*amp1_3*y_2
+     +     + damp3*amp1_3*y_3 + VOIGT(x,4,valvn1_3) 
+     +     + VOIGT(x,4,valvn2_3) + a_3
+
+c sp 4
+      ELSEIF (j.EQ.4) THEN
+
+      CALL SPLEV(t_1,nn_1,c_1,k,x-x1_4,y_1,1,1,ier_1)
+      CALL SPLEV(t_2,nn_2,c_2,k,x-x1_4-dx2,y_2,1,1,ier_2)
+      CALL SPLEV(t_3,nn_3,c_2,k,x-x1_4-dx3,y_3,1,1,ier_3)
+      
+      
+      THREE_INTERP_POLY_N_SET =  amp1_4*y_1 +damp2*amp1_4*y_2
+     +     + damp3*amp1_4*y_3 + VOIGT(x,4,valvn1_4) 
+     +     + VOIGT(x,4,valvn2_4) + a_4
+
+
+
+c sp 5
+      ELSEIF (j.EQ.5) THEN
+
+      CALL SPLEV(t_1,nn_1,c_1,k,x-x1_5,y_1,1,1,ier_1)
+      CALL SPLEV(t_2,nn_2,c_2,k,x-x1_5-dx2,y_2,1,1,ier_2)
+      CALL SPLEV(t_3,nn_3,c_2,k,x-x1_5-dx3,y_3,1,1,ier_3)
             
+
+      THREE_INTERP_POLY_N_SET =  amp1_5*y_1 +damp2*amp1_5*y_2
+     +     + damp3*amp1_5*y_3 + VOIGT(x,4,valvn1_5) 
+     +     + VOIGT(x,4,valvn2_5) + a_5
+
+c sp 6
+      ELSEIF (j.EQ.6) THEN
+
+      CALL SPLEV(t_1,nn_1,c_1,k,x-x1_6,y_1,1,1,ier_1)
+      CALL SPLEV(t_2,nn_2,c_2,k,x-x1_6-dx2,y_2,1,1,ier_2)
+      CALL SPLEV(t_3,nn_3,c_2,k,x-x1_6-dx3,y_3,1,1,ier_3)
+            
+
+      THREE_INTERP_POLY_N_SET =  amp1_6*y_1 +damp2*amp1_6*y_2
+     +     + damp3*amp1_6*y_3 + VOIGT(x,4,valvn1_6) 
+     +     + VOIGT(x,4,valvn2_6) + a_6
+
+c sp 7
+      ELSEIF (j.EQ.7) THEN
+
+      CALL SPLEV(t_1,nn_1,c_1,k,x-x1_7,y_1,1,1,ier_1)
+      CALL SPLEV(t_2,nn_2,c_2,k,x-x1_7-dx2,y_2,1,1,ier_2)
+      CALL SPLEV(t_3,nn_3,c_2,k,x-x1_7-dx3,y_3,1,1,ier_3)
+            
+
+      THREE_INTERP_POLY_N_SET =  amp1_7*y_1 +damp2*amp1_7*y_2
+     +     + damp3*amp1_7*y_3 + VOIGT(x,4,valvn1_7) 
+     +     + VOIGT(x,4,valvn2_7) + a_7
+
+c sp 8
+      ELSEIF (j.EQ.8) THEN
+
+      CALL SPLEV(t_1,nn_1,c_1,k,x-x1_8,y_1,1,1,ier_1)
+      CALL SPLEV(t_2,nn_2,c_2,k,x-x1_8-dx2,y_2,1,1,ier_2)
+      CALL SPLEV(t_3,nn_3,c_2,k,x-x1_8-dx3,y_3,1,1,ier_3)
+            
+
+      THREE_INTERP_POLY_N_SET =  amp1_8*y_1 +damp2*amp1_8*y_2
+     +     + damp3*amp1_8*y_3 + VOIGT(x,4,valvn1_8) 
+     +     + VOIGT(x,4,valvn2_8) + a_8
+
+
+c sp 9
+      ELSEIF (j.EQ.9) THEN
+
+      CALL SPLEV(t_1,nn_1,c_1,k,x-x1_9,y_1,1,1,ier_1)
+      CALL SPLEV(t_2,nn_2,c_2,k,x-x1_9-dx2,y_2,1,1,ier_2)
+      CALL SPLEV(t_3,nn_3,c_2,k,x-x1_9-dx3,y_3,1,1,ier_3)
+            
+
+      THREE_INTERP_POLY_N_SET =  amp1_9*y_1 +damp2*amp1_9*y_2
+     +     + damp3*amp1_9*y_3 + VOIGT(x,4,valvn1_9) 
+     +     + VOIGT(x,4,valvn2_9) + a_9
+
+      ELSE
+      WRITE(*,*) 'Too many spectra !! Check your input files, CALCUL'
+      WRITE(*,*) j
+      END IF
+      
+
+
+c     Save different components
+      IF(plot) THEN
+            IF(j.EQ.1) THEN
+            WRITE(40,*) x, THREE_INTERP_POLY_N_SET, amp1_1*y_1,
+     +      damp2*amp1_1*y_2, damp3*amp1_1*y_3, 
+     +      VOIGT(x,4,valvn1_1), VOIGT(x,4,valvn2_1), a_1
+
+
+            ELSEIF(j.EQ.2) THEN
+            WRITE(40,*) x, THREE_INTERP_POLY_N_SET, amp1_2*y_1,
+     +      damp2*amp1_2*y_2, damp3*amp1_2*y_3, 
+     +      VOIGT(x,4,valvn1_2), VOIGT(x,4,valvn2_2), a_2
+
+            ELSEIF(j.EQ.3) THEN
+            WRITE(40,*) x, THREE_INTERP_POLY_N_SET, amp1_3*y_1,
+     +      damp2*amp1_3*y_2, damp3*amp1_3*y_3, 
+     +      VOIGT(x,4,valvn1_3), VOIGT(x,4,valvn2_3), a_3
+
+            ELSEIF(j.EQ.4) THEN
+            WRITE(40,*) x, THREE_INTERP_POLY_N_SET, amp1_4*y_1,
+     +      damp2*amp1_4*y_2, damp3*amp1_4*y_3, 
+     +      VOIGT(x,4,valvn1_4), VOIGT(x,4,valvn2_4), a_4
+
+            ELSEIF(j.EQ.5) THEN
+            WRITE(40,*) x, THREE_INTERP_POLY_N_SET, amp1_5*y_1,
+     +      damp2*amp1_5*y_2, damp3*amp1_5*y_3, 
+     +      VOIGT(x,4,valvn1_5), VOIGT(x,4,valvn2_5), a_5
+
+            ELSEIF(j.EQ.6) THEN
+            WRITE(40,*) x, THREE_INTERP_POLY_N_SET, amp1_6*y_1,
+     +      damp2*amp1_6*y_2, damp3*amp1_6*y_3, 
+     +      VOIGT(x,4,valvn1_6), VOIGT(x,4,valvn2_6), a_6
+
+            ELSEIF(j.EQ.7) THEN
+            WRITE(40,*) x, THREE_INTERP_POLY_N_SET, amp1_7*y_1,
+     +      damp2*amp1_7*y_2, damp3*amp1_7*y_3, 
+     +      VOIGT(x,4,valvn1_7), VOIGT(x,4,valvn2_7), a_7
+
+            ELSEIF(j.EQ.8) THEN
+            WRITE(40,*) x, THREE_INTERP_POLY_N_SET, amp1_8*y_1,
+     +      damp2*amp1_8*y_2, damp3*amp1_8*y_3, 
+     +      VOIGT(x,4,valvn1_8), VOIGT(x,4,valvn2_8), a_8
+
+            ELSEIF(j.EQ.9) THEN
+            WRITE(40,*) x, THREE_INTERP_POLY_N_SET, amp1_9*y_1,
+     +      damp2*amp1_9*y_2, damp3*amp1_9*y_3, 
+     +      VOIGT(x,4,valvn1_9), VOIGT(x,4,valvn2_9), a_9
+
+            ENDIF
+      ENDIF
+
+      RETURN
+      END
