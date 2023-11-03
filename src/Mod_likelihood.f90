@@ -463,6 +463,8 @@ CONTAINS
             CALL INIT_INTERP_CONVO(par_in(8))
          ELSE IF(funcname.EQ.'TWO_INTERP_THREE_VOIGT_POLY') THEN 
             CALL INIT_TWO_INTERP(par_in(67),par_in(68))
+         ELSE IF(funcname.EQ.'THREE_INTERP_POLY_N_SET') THEN 
+            CALL INIT_THREE_INTERP(par_in(103),par_in(104),par_in(105))
        END IF
     ELSE
        IF(funcname.EQ.'ROCKING_CURVE_SET') THEN
