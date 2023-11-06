@@ -181,7 +181,9 @@ c################################### USERFCN DEFINITION ########################
       ELSE IF(funcname.EQ.'POWER_CONST') THEN
             SELECT_USERFCN = 86
       ELSE IF(funcname.EQ.'DCS_EIGHT_VOIGT_POLYBG_X0') THEN 
+      ELSE IF(funcname.EQ.'DCS_EIGHT_VOIGT_POLYBG_X0') THEN 
             SELECT_USERFCN = 87
+      ELSE IF(funcname.EQ.'MULTIPLE_VOIGT_POLY_X0') THEN 
       ELSE IF(funcname.EQ.'MULTIPLE_VOIGT_POLY_X0') THEN 
             SELECT_USERFCN = 88
       ELSE IF(funcname.EQ.'DCS_MULTIPLE_VOIGT_POLY_X0_N') THEN 
