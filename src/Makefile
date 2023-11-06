@@ -11,7 +11,7 @@ NAME_FUNC    = nested_fit_func$(VERSION_FULL)
 
 #Choose option for makefile. Comment if not used
 COMP = i #g for gfortran, i for ifort
-#DEBUG = ON #Enable debug mode.
+# DEBUG = ON #Enable debug mode.
 #NORNG = ON #Uses the same set seed. Useful for testing
 OPENMP = ON #Enable/Disable OpenMP.
 #OPENMPI = ON #Enable/Disable OpenMPI.
@@ -60,7 +60,7 @@ else ifeq ($(COMP),i )
     ifeq ($(DEBUG),ON )
         FFLAGS = -DDEBUG_ON -cpp -heap-arrays -O0 -g -no-wrap-margin -check bounds -warn all -nogen-interfaces
     else
-        FFLAGS = -cpp -heap-arrays -O2 -no-wrap-margin -traceback
+        FFLAGS = -cpp -heap-arrays -O0 -no-wrap-margin -traceback
     endif
      
     FC  = ifort
