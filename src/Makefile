@@ -1,8 +1,8 @@
 #  Automatic Time-stamp: <Last changed by martino on Tuesday 08 June 2021 at CEST 15:08:06>
 # Copyright M. Trassinelli
-# Last modified: 2023/10/05 11:56:10
+# Last modified: 2023/10/20 14:51:31
 
-VERSION_FULL = 4.5.5
+VERSION_FULL = 4.5.6
 VERSION = 4.5
 
 NAME    = nested_fit$(VERSION_FULL)
@@ -11,7 +11,7 @@ NAME_FUNC    = nested_fit_func$(VERSION_FULL)
 
 #Choose option for makefile. Comment if not used
 COMP = i #g for gfortran, i for ifort
-# DEBUG = ON #Enable debug mode.
+#DEBUG = ON #Enable debug mode.
 #NORNG = ON #Uses the same set seed. Useful for testing
 OPENMP = ON #Enable/Disable OpenMP.
 #OPENMPI = ON #Enable/Disable OpenMPI.
@@ -50,7 +50,7 @@ endif
 ifeq ($(COMP),g )
     $(info Compiler = gfortran.)
     ifeq ($(DEBUG),ON )
-        FFLAGS = -DDEBUG_ON -cpp -O0 -Wall -g -ffree-line-length-0 -fbounds-check
+        FFLAGS = -DDEBUG_ON -cpp -O0 -Wall -g -ffree-line-length-0 -fbounds-check 
     else
         FFLAGS = -cpp -O2 -ffree-line-length-0
     endif
@@ -60,7 +60,7 @@ else ifeq ($(COMP),i )
     ifeq ($(DEBUG),ON )
         FFLAGS = -DDEBUG_ON -cpp -heap-arrays -O0 -g -no-wrap-margin -check bounds -warn all -nogen-interfaces
     else
-        FFLAGS = -cpp -heap-arrays -O0 -no-wrap-margin -traceback
+        FFLAGS = -cpp -heap-arrays -O2 -no-wrap-margin
     endif
      
     FC  = ifort
@@ -124,7 +124,7 @@ endif
 CFILES =
 
 # In the order: my stuff, Num. Rec., SLATEC, FITPACK, others stuff
-FFILES  = gauleg.f90 gaulag.f90 \
+FFILES  =  gauleg.f90 gaulag.f90\
 	USERFCN.f USERFCN_SET.f init_interpolation.f \
 	\
 	SLATEC/dpsort.f \
@@ -136,7 +136,7 @@ FFILES  = gauleg.f90 gaulag.f90 \
 	\
 	rinteg.f CALGO.ACM/WOFZ.f \
 
-F90FILES = Mod_parameters.f90 Mod_likelihood.f90 Mod_timestamp.f90 userfcn_set_f90.f90 \
+F90FILES_LIKE = Mod_parameters.f90 Mod_timestamp.f90 Mod_likelihood.f90 \
 	Mod_cluster_analysis.f90 Mod_search_new_point.f90 \
 	Mod_options.f90 Mod_mpi.f90 Mod_math.f90 \
 	Mod_metadata.f90 \
@@ -161,15 +161,12 @@ F90FILES_FUNC = Mod_parameters.f90 Mod_timestamp.f90 Mod_likelihood_func.f90 \
 CC  = gcc
 FC90= $(FC)
 SRCFILES =  $(FFILES)
+OBJFILES = $(CFILES:.c=.o) $(FFILES:.f=.o) $(F90FILES_LIKE:.f90=.o) 
+OBJFILES_FUNC = $(CFILES:.c=.o) $(FFILES:.f=.o) $(F90FILES_FUNC:.f90=.o)
+$(info Flags --> $(FFLAGS))
+$(info Libraries --> $(LIBG))
 
-
-
-.c.o:
-	$(CC) -c $(CFLAGS) $<
-
-
-.f90.o:
-	$(FC90) -c $(FFLAGS) ${OPT} $<
+#
 # actual build
 all: $(NAME) $(NAME_FUNC) 
 
@@ -208,7 +205,6 @@ $(NAME_FUNC):  $(OBJFILES_FUNC) $(FFILES)   $(LIBG)
 
 argparse.o: cli/argparse.f90
 	$(FC) -c $(FFLAGS) ${OPT} $<
-USERFCN_SET.o: userfcn_set_f90.o
 
 clean:
 	rm -f *.o

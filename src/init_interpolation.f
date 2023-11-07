@@ -338,8 +338,8 @@ c     Initialize the variables
 
 
       WRITE(*,*) ' '
-      WRITE(*,*) '##### Initialization of the two interpolation ######'
-
+      WRITE(*,*) '#### Initialization of the three interpolation #####'
+      WRITE(*,*) s_1, s_2, s_3
 c     ############################################ 1st peak #################################################
 
       CALL  INTERPOLATE(fileinterpname_1,

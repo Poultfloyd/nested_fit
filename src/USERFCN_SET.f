@@ -80,7 +80,6 @@ c     Choose your model (see below for definition)
       REAL*8 FOUR_GAUSS_ERF_TWO_GAUSS_STAN2_SET
       REAL*8 FOUR_GAUSS_ERF_TWO_GAUSS_STAN3_SET
       REAL*8 ROCKING_CURVE_SET
-      INTEGER*4 funcid
       REAL*8 DCS_EIGHT_VOIGT_POLYBG_X0_SET
       REAL*8 DCS_EIGHT_VOIGT_SET_NEIGHBOUR
       REAL*8 THREE_INTERP_POLY_N_SET
@@ -5303,7 +5302,7 @@ c     Interpolation variables
 
       CALL SPLEV(t_1,nn_1,c_1,k,x-x1_1,y_1,1,1,ier_1)
       CALL SPLEV(t_2,nn_2,c_2,k,x-x1_1-dx2,y_2,1,1,ier_2)
-      CALL SPLEV(t_3,nn_3,c_2,k,x-x1_1-dx3,y_3,1,1,ier_3)
+      CALL SPLEV(t_3,nn_3,c_3,k,x-x1_1-dx3,y_3,1,1,ier_3)
 
 
       THREE_INTERP_POLY_N_SET =  amp1_1*y_1 +damp2*amp1_1*y_2
@@ -5311,13 +5310,12 @@ c     Interpolation variables
      +     + VOIGT(x,4,valvn2_1) + a_1
 
 
-
 c sp2     
 
       ELSEIF (j.EQ.2) THEN
       CALL SPLEV(t_1,nn_1,c_1,k,x-x1_2,y_1,1,1,ier_1)
       CALL SPLEV(t_2,nn_2,c_2,k,x-x1_2-dx2,y_2,1,1,ier_2)
-      CALL SPLEV(t_3,nn_3,c_2,k,x-x1_2-dx3,y_3,1,1,ier_3)
+      CALL SPLEV(t_3,nn_3,c_3,k,x-x1_2-dx3,y_3,1,1,ier_3)
       
       
       THREE_INTERP_POLY_N_SET =  amp1_2*y_1 +damp2*amp1_2*y_2
@@ -5329,7 +5327,7 @@ c sp 3
 
       CALL SPLEV(t_1,nn_1,c_1,k,x-x1_3,y_1,1,1,ier_1)
       CALL SPLEV(t_2,nn_2,c_2,k,x-x1_3-dx2,y_2,1,1,ier_2)
-      CALL SPLEV(t_3,nn_3,c_2,k,x-x1_3-dx3,y_3,1,1,ier_3)
+      CALL SPLEV(t_3,nn_3,c_3,k,x-x1_3-dx3,y_3,1,1,ier_3)
       
       
       THREE_INTERP_POLY_N_SET =  amp1_3*y_1 +damp2*amp1_3*y_2
@@ -5341,7 +5339,7 @@ c sp 4
 
       CALL SPLEV(t_1,nn_1,c_1,k,x-x1_4,y_1,1,1,ier_1)
       CALL SPLEV(t_2,nn_2,c_2,k,x-x1_4-dx2,y_2,1,1,ier_2)
-      CALL SPLEV(t_3,nn_3,c_2,k,x-x1_4-dx3,y_3,1,1,ier_3)
+      CALL SPLEV(t_3,nn_3,c_3,k,x-x1_4-dx3,y_3,1,1,ier_3)
       
       
       THREE_INTERP_POLY_N_SET =  amp1_4*y_1 +damp2*amp1_4*y_2
@@ -5355,7 +5353,7 @@ c sp 5
 
       CALL SPLEV(t_1,nn_1,c_1,k,x-x1_5,y_1,1,1,ier_1)
       CALL SPLEV(t_2,nn_2,c_2,k,x-x1_5-dx2,y_2,1,1,ier_2)
-      CALL SPLEV(t_3,nn_3,c_2,k,x-x1_5-dx3,y_3,1,1,ier_3)
+      CALL SPLEV(t_3,nn_3,c_3,k,x-x1_5-dx3,y_3,1,1,ier_3)
             
 
       THREE_INTERP_POLY_N_SET =  amp1_5*y_1 +damp2*amp1_5*y_2
@@ -5367,7 +5365,7 @@ c sp 6
 
       CALL SPLEV(t_1,nn_1,c_1,k,x-x1_6,y_1,1,1,ier_1)
       CALL SPLEV(t_2,nn_2,c_2,k,x-x1_6-dx2,y_2,1,1,ier_2)
-      CALL SPLEV(t_3,nn_3,c_2,k,x-x1_6-dx3,y_3,1,1,ier_3)
+      CALL SPLEV(t_3,nn_3,c_3,k,x-x1_6-dx3,y_3,1,1,ier_3)
             
 
       THREE_INTERP_POLY_N_SET =  amp1_6*y_1 +damp2*amp1_6*y_2
@@ -5379,7 +5377,7 @@ c sp 7
 
       CALL SPLEV(t_1,nn_1,c_1,k,x-x1_7,y_1,1,1,ier_1)
       CALL SPLEV(t_2,nn_2,c_2,k,x-x1_7-dx2,y_2,1,1,ier_2)
-      CALL SPLEV(t_3,nn_3,c_2,k,x-x1_7-dx3,y_3,1,1,ier_3)
+      CALL SPLEV(t_3,nn_3,c_3,k,x-x1_7-dx3,y_3,1,1,ier_3)
             
 
       THREE_INTERP_POLY_N_SET =  amp1_7*y_1 +damp2*amp1_7*y_2
@@ -5391,7 +5389,7 @@ c sp 8
 
       CALL SPLEV(t_1,nn_1,c_1,k,x-x1_8,y_1,1,1,ier_1)
       CALL SPLEV(t_2,nn_2,c_2,k,x-x1_8-dx2,y_2,1,1,ier_2)
-      CALL SPLEV(t_3,nn_3,c_2,k,x-x1_8-dx3,y_3,1,1,ier_3)
+      CALL SPLEV(t_3,nn_3,c_3,k,x-x1_8-dx3,y_3,1,1,ier_3)
             
 
       THREE_INTERP_POLY_N_SET =  amp1_8*y_1 +damp2*amp1_8*y_2
@@ -5404,7 +5402,8 @@ c sp 9
 
       CALL SPLEV(t_1,nn_1,c_1,k,x-x1_9,y_1,1,1,ier_1)
       CALL SPLEV(t_2,nn_2,c_2,k,x-x1_9-dx2,y_2,1,1,ier_2)
-      CALL SPLEV(t_3,nn_3,c_2,k,x-x1_9-dx3,y_3,1,1,ier_3)
+      CALL SPLEV(t_3,nn_3,c_3,k,x-x1_9-dx3,y_3,1,1,ier_3)
+
             
 
       THREE_INTERP_POLY_N_SET =  amp1_9*y_1 +damp2*amp1_9*y_2
